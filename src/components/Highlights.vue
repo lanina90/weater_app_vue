@@ -323,11 +323,11 @@ const sunsetTime = computed(() => {
     &--wind
       background-image: url('/src/assets/img/gusts.svg')
 
-    &--pressure
-      background-image: url('/src/assets/img/humidity.svg')
-
     &--sun
       background-image: url('/src/assets/img/cloud.svg')
+
+    &--pressure
+      background-image: url('/src/assets/img/feels-like.svg')
 
   &-data
     display: flex
