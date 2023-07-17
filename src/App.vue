@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed} from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import {API_KEY, API_URL} from "@/constans";
 import WeatherSummary from './components/WeatherSummary.vue'
 import Highlights from "@/components/Highlights.vue";
@@ -9,16 +9,33 @@ import Chart from "@/components/Chart.vue";
 
 const city = ref(null)
 const weatherInfo = ref(null)
-const isError = computed(() => weatherInfo.value?.cod !== 200)
+const isError = ref(false)
+const errorMessage = ref('')
+const isLoading = ref(false)
 
 async function getWeather() {
+  isLoading.value = true
   if (!city.value) {
     await getUserLocation()
   }
 
-  fetch(`${API_URL}?q=${city.value}&units=metric&appid=${API_KEY}`)
-      .then(res => res.json())
-      .then(data => (weatherInfo.value = data))
+  try {
+    const response = await fetch(`${API_URL}?q=${city.value}&units=metric&appid=${API_KEY}`)
+    const data = await response.json()
+
+    if (!response.ok) {
+      isError.value = true
+      errorMessage.value = data?.message
+    } else {
+      weatherInfo.value = data
+      isError.value = false
+    }
+  } catch (e) {
+    isError.value = true
+    errorMessage.value = 'Something went wrong...'
+  }
+
+  isLoading.value = false
 }
 
 async function getUserLocation() {
@@ -35,13 +52,14 @@ onMounted(getWeather)
   <div class="page">
     <main class="main">
       <div class="container">
-        <div class="laptop">
+        <div v-if="isLoading" class="lds-dual-ring"></div>
+        <div v-else class="laptop">
           <div class="sections">
             <section :class="['section', 'section-left', {'section-error' : isError}]">
               <div class="info">
                 <div class="city-inner">
                   <input
-                      v-model="Ente"
+                      v-model="city"
                       @keyup.enter="getWeather"
                       type="text"
                       placeholder="Choose your city"
@@ -52,7 +70,9 @@ onMounted(getWeather)
                     :weatherInfo="weatherInfo"/>
                 <div v-else class="error">
                   <div class="error-title">Oops....Something went wrong</div>
-                  <div v-if="weatherInfo?.message" class="error-message">{{capitalizedFirstLetter(weatherInfo?.message)}}</div>
+                  <div v-if="errorMessage" class="error-message">
+                    {{ capitalizedFirstLetter(errorMessage) }}
+                  </div>
                 </div>
               </div>
             </section>
@@ -168,4 +188,29 @@ onMounted(getWeather)
   &-message
     padding-top: 20px
     font-size: 18px
+
+.lds-dual-ring
+  display: inline-block
+  width: 90px
+  height: 90px
+  margin-left: 40%
+
+.lds-dual-ring:after
+  content: " "
+  display: block
+  width: 64px
+  height: 64px
+  margin: auto
+  border-radius: 50%
+  border: 6px solid #fff
+  border-color: #fff transparent #fff transparent
+  animation: lds-dual-ring 1.2s linear infinite
+
+@keyframes lds-dual-ring
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)
+
+
 </style>

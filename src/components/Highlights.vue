@@ -9,7 +9,7 @@ const props = defineProps({
   }
 })
 
-const timeZone = computed(() => props.weatherInfo.timezone )
+const timeZone = computed(() => props.weatherInfo?.timezone )
 
 const sunriseTime = computed(() => {
   return getTime(props.weatherInfo?.sys.sunrise + timeZone.value)
@@ -85,7 +85,7 @@ const sunsetTime = computed(() => {
             <div class="card-centered">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{getPressureMm(weatherInfo.main.pressure) }}
+                  {{getPressureMm(weatherInfo?.main.pressure) }}
                 </div>
                 <div class="info-main-text"> mm </div>
               </div>
@@ -97,7 +97,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{Math.round(weatherInfo.main.feels_like) }}
+                {{Math.round(weatherInfo?.main.feels_like) }}
               </div>
               <div class="info-main-text">°C </div>
             </div>
@@ -140,7 +140,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{weatherInfo.clouds.all }}
+                {{weatherInfo?.clouds.all }}
               </div>
               <div class="info-main-text">
                 %
