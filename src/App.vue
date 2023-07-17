@@ -5,14 +5,27 @@ import WeatherSummary from './components/WeatherSummary.vue'
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import Chart from "@/components/Chart.vue";
-const city = ref('Paris')
+
+
+const city = ref(null)
 const weatherInfo = ref(null)
 const isError = computed(() => weatherInfo.value?.cod !== 200)
 
-function getWeather() {
+async function getWeather() {
+  if (!city.value) {
+    await getUserLocation()
+  }
+
   fetch(`${API_URL}?q=${city.value}&units=metric&appid=${API_KEY}`)
       .then(res => res.json())
       .then(data => (weatherInfo.value = data))
+}
+
+async function getUserLocation() {
+  await fetch('http://ip-api.com/json')
+      .then(response => response.json())
+      .then(data => city.value = data.city)
+      .catch(error => console.error(error));
 }
 
 onMounted(getWeather)
@@ -28,9 +41,10 @@ onMounted(getWeather)
               <div class="info">
                 <div class="city-inner">
                   <input
-                      v-model="city"
+                      v-model="Ente"
                       @keyup.enter="getWeather"
                       type="text"
+                      placeholder="Choose your city"
                       class="search">
                 </div>
                 <WeatherSummary
