@@ -1,94 +1,41 @@
 <script setup>
-import {ref, onMounted, watch, computed } from 'vue'
-import {API_KEY, API_URL} from "@/constans";
 import WeatherSummary from './components/WeatherSummary.vue'
+import Chart from "@/components/Chart.vue";
+import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
-import Chart from "@/components/Chart.vue";
+import { useStore } from 'vuex';
+import { ref, computed, onMounted } from 'vue';
 
-const city = ref(null)
-const userCity = ref(null)
-const weatherInfo = ref(null)
-const isError = ref(false)
-const errorMessage = ref('')
-const isLoading = ref(false)
-const searchResults = ref([]);
-const cities = ref([]);
+const store = useStore();
 
-const selectCity = (name) => {
-  city.value = name;
-  getWeather()
-  searchResults.value = [];
-  city.value = ''
-};
+const searchQuery = ref('');
+const currentComponent = ref('TodayHighlights')
+const weatherInfo = computed(() => store.state.weatherInfo);
+const isError = store.state.isError;
+const errorMessage = store.state.errorMessage
+const isLoading = store.state.isLoading
 
-const autoCompleteResults = computed(() => {
-  if (!city.value || city.value.length < 3) {
+onMounted(async () => {
+  await store.dispatch('getUserLocation');
+  await store.dispatch('getWeather');
+  await store.dispatch('fetchCities');
+});
+
+const searchResults = computed(() => {
+  if (!searchQuery.value || searchQuery.value.length < 3) {
     return [];
   }
-
-  const query = city.value.toLowerCase();
-  return cities.value.filter(c =>
+  const query = searchQuery.value.toLowerCase();
+  return store.state.cities.filter(c =>
       c.name.toLowerCase().startsWith(query) || c.country.toLowerCase().startsWith(query)
   );
 });
 
-watch(city, () => {
-  searchResults.value = autoCompleteResults.value;
-});
-
-async function getUserLocation() {
-  await fetch('http://ip-api.com/json')
-      .then(response => response.json())
-      .then(data => userCity.value = data.city)
-      .catch(error => console.error(error));
-}
-
-async function getWeather() {
-  isLoading.value = true
-
-  if(!city.value) {
-    await getUserLocation()
-  }
-
-  const queryCity = city.value ? city.value : userCity.value
-
-  try {
-    const response = await fetch(`${API_URL}?q=${queryCity}&units=metric&appid=${API_KEY}`)
-    const data = await response.json()
-
-    if (!response.ok) {
-      isError.value = true
-      errorMessage.value = data?.message
-    } else {
-      weatherInfo.value = data
-      isError.value = false
-    }
-  } catch (e) {
-    isError.value = true
-    errorMessage.value = 'Something went wrong...'
-  }
-
-  isLoading.value = false
-}
-
-onMounted(async () => {
-
-  getUserLocation();
-  getWeather();
-
-  try {
-    const response = await fetch('./db/city.list.json');
-    const data = await response.json();
-    cities.value = data.map(cityObj => ({
-      name: cityObj.name,
-      country: cityObj.country
-    }));
-
-  } catch (error) {
-    console.error(error);
-  }
-});
+const selectCity = async (name) => {
+  await store.dispatch('selectCity', name);
+  searchQuery.value = '';
+};
 
 </script>
 
@@ -98,27 +45,25 @@ onMounted(async () => {
       <div class="container">
         <div v-if="isLoading" class="lds-dual-ring"></div>
         <div v-else class="laptop">
+          <h1>Weather Forecasts App</h1>
           <div class="sections">
             <section :class="['section', 'section-left', {'section-error' : isError}]">
               <div class="info">
                 <div class="city-inner">
                   <input
-                      v-model="city"
-                      @input="searchResults.value = autoCompleteResults.value"
+                      v-model="searchQuery"
                       type="text"
                       placeholder="Choose your city"
                       class="search">
-
-                  <div v-if="searchResults.length > 0" class="autocomplete-results" >
+                  <div v-if="searchResults.length > 0" class="autocomplete-results">
                     <div
                         v-for="(result, i) in searchResults"
                         @click="selectCity(result.name)"
                         :key="i"
                         class="autocomplete-result">
-                      {{ result.name }}, {{result.country}}
+                      {{ result.name }}, {{ result.country }}
                     </div>
                   </div>
-
                 </div>
                 <WeatherSummary
                     v-if="!isError"
@@ -131,12 +76,22 @@ onMounted(async () => {
                 </div>
               </div>
             </section>
+
             <section v-if="!isError" class="section section-right">
-              <Highlights :weatherInfo="weatherInfo"/>
+              <div class="section highlights">
+                <nav class="header">
+                  <p @click="currentComponent = 'TodayHighlights'">Today's Highlights</p>
+                  <p @click="currentComponent = 'Chart'">Temperature</p>
+                  <p @click="currentComponent = 'Forecast'">5 days forecast</p>
+
+                </nav>
+                <Highlights
+                    v-if="currentComponent === 'TodayHighlights'"
+                    :weatherInfo="weatherInfo"/>
+                <FiveDaysForecast v-else-if="currentComponent === 'Forecast'"/>
+                <Chart v-else-if="currentComponent === 'Chart'"/>
+              </div>
             </section>
-          </div>
-          <div v-if="!isError" class="sections">
-            <Chart/>
           </div>
         </div>
       </div>
@@ -161,6 +116,14 @@ onMounted(async () => {
   padding: 20px
   background-color: #0e100f
   border-radius: 25px
+
+  @media (max-width: 575px)
+    max-width: 360px
+
+h1
+  font-size: 22px
+  text-align: center
+  padding-bottom: 5px
 
 .sections
   display: flex
@@ -191,6 +154,36 @@ onMounted(async () => {
     width: 100%
     margin-top: 16px
     padding-left: 0
+
+.header
+  display: flex
+  height: 80px
+
+
+  & > p
+    border-bottom: 3px solid black
+    cursor: pointer
+    width: 200px
+    padding: 10px 0
+    text-align: center
+
+    &:hover
+      transform: scale(1.1)
+      border: none
+
+
+.highlights
+  padding: 2px 16px 16px
+  background: url('/src/assets/img/gradient-4.jpg') no-repeat 0 0
+  background-size: cover
+  border-radius: 25px
+
+  &-wrapper
+    display: flex
+    justify-content: space-between
+
+    @media (max-width: 575px)
+      flex-direction: column
 
 .city-inner
   position: relative
@@ -282,6 +275,9 @@ onMounted(async () => {
   top: 55px
   z-index: 1001
   border-radius: 20px
+
+  @media (max-width: 767px)
+    height: 290px
 
   &::-webkit-scrollbar
     width: 1px

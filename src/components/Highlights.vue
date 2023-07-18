@@ -21,16 +21,11 @@ const sunsetTime = computed(() => {
 </script>
 
 <template>
-  <div class="section highlights">
-    <div class="title">
-      Today's Highlights
-    </div>
+  <div>
     <div class="highlights-wrapper">
       <div class="highlight">
         <div class="card">
-          <div class="card-title">
-            Wind
-          </div>
+          <div class="card-title">Wind</div>
           <div class="card-pic card-pic--wind"></div>
           <div class="card-info">
             <div class="card-justify">
@@ -162,10 +157,6 @@ const sunsetTime = computed(() => {
 <style scoped lang="sass">
 @import '../assets/styles/main'
 .highlights
-  padding: 28px 16px 16px
-  background: url('/src/assets/img/gradient-4.jpg') no-repeat 0% 0%
-  background-size: cover
-  border-radius: 25px
 
   &-wrapper
     display: flex
