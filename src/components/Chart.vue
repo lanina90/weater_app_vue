@@ -13,11 +13,12 @@ const props = defineProps({
   }
 })
 
+
 const data = {
   labels: props.labels,
   datasets: [
     {
-      label: 'Средняя температура',
+      label: 'Temperature',
       data: props.data,
       fill: false,
       borderColor: 'rgb(75, 192, 192)',

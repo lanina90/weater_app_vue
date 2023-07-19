@@ -3,7 +3,7 @@
 import Chart from "@/components/Chart.vue";
 import {formatDate, getTime} from "../utils";
 import {useStore} from 'vuex';
-import {computed, ref, watch} from 'vue'
+import {computed} from 'vue'
 
 const store = useStore();
 const weatherInfo = computed(() => store.state.weatherInfo);
@@ -26,7 +26,6 @@ const labels = computed(() =>
 const data = computed(() =>
     daily.value.map(item => (item.temp.max + item.temp.min) / 2)
 );
-
 
 
 </script>

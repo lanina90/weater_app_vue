@@ -10,7 +10,6 @@ const labels = ref([]);
 const data = ref([]);
 const weatherInfo = computed(() => store.state.weatherInfo);
 
-
 const timeZone = computed(() => weatherInfo.value?.timezone_offset)
 const sunriseTime = computed(() => {
   return getTime(weatherInfo.value?.current.sunrise + timeZone.value)
@@ -20,15 +19,20 @@ const sunsetTime = computed(() => {
   return getTime(weatherInfo.value?.current.sunset + timeZone.value)
 })
 
-watch(weatherInfo, (newVal) => {
-  if (newVal) {
-    labels.value = newVal.hourly.map(item => {
-      let date = new Date(item.dt * 1000);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    });
-    data.value = newVal.hourly.map(item => item.temp)
-  }
-});
+watch(
+    () => weatherInfo.value,
+    (newVal) => {
+      if (newVal) {
+        labels.value = newVal.hourly.map(item => {
+          let date = new Date(item.dt * 1000);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        });
+        data.value = newVal.hourly.map(item => item.temp)
+      }
+    },
+    { immediate: true }
+);
+
 
 
 </script>
