@@ -50,7 +50,7 @@ export default createStore({
       try {
         commit('setIsLoading', true);
         const queryCity = state.city ? `lat=${state.city.lat}&lon=${state.city.lon}` : `lat=${state.userCity.lat}&lon=${state.userCity.lon}`;
-        const response = await fetch(`${API_URL_ONECALL}?${queryCity}&exclude=hourly,minutely&units=metric&appid=${API_KEY}`);
+        const response = await fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`);
         const data = await response.json();
 
 

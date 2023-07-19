@@ -3,7 +3,7 @@
 import Chart from "@/components/Chart.vue";
 import {formatDate, getTime} from "../utils";
 import {useStore} from 'vuex';
-import {computed, onMounted, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 
 const store = useStore();
 const weatherInfo = computed(() => store.state.weatherInfo);
@@ -11,11 +11,22 @@ const weatherInfo = computed(() => store.state.weatherInfo);
 const daily = computed(() => {
   return weatherInfo.value?.daily ?? [];
 });
+
 const timezoneOffset =
     computed(() => {
       return weatherInfo.value?.timezone_offset
     });
-console.log(daily);
+
+const labels = computed(() =>
+    daily.value.slice(1, 6).map(item => {
+      let date = new Date(item.dt * 1000);
+      return date.toLocaleString('en-US', {  month: 'short', day: '2-digit' });
+    })
+);
+const data = computed(() =>
+    daily.value.map(item => (item.temp.max + item.temp.min) / 2)
+);
+
 
 
 </script>
@@ -68,9 +79,8 @@ console.log(daily);
       </div>
 
     </div>
-
   </section>
-  <Chart/>
+  <Chart :labels="labels" :data="data"/>
 </template>
 
 <style scoped lang="sass">
@@ -92,10 +102,12 @@ console.log(daily);
     margin-bottom: 16px
 
 .title
-  font-size: 20px
+  font-size: 18px
+  width: 80%
 
 .card
-  min-height: 230px
+  height: 280px
+  width: 100%
   padding: 16px
   background: url('/src/assets/img/gradient-2.jpg') no-repeat 50% 50%
   background-size: cover
@@ -103,6 +115,9 @@ console.log(daily);
 
   @media (max-width: 1199px)
     padding: 12px
+
+  @media (max-width: 767px)
+    height: 250px
 
   &-date
     font-size: 22px
@@ -116,8 +131,6 @@ console.log(daily);
     justify-content: space-around
     margin-bottom: 10px
 
-    @media (max-width: 1199px)
-      font-size: 16px
 
   &-info
     display: flex
@@ -136,6 +149,9 @@ console.log(daily);
         font-size: 12px
         padding: 5px 10px
 
+        @media (max-width: 767px)
+          font-size: 16px
+
   &-pic
     width: 20px
     height: 20px
@@ -153,10 +169,9 @@ console.log(daily);
   background: url('/src/assets/img/uv-index.svg') no-repeat 50% 50%
 
 .pic-card
-  width: 30px
-  height: 30px
+  width: 32px
+  height: 32px
   background-repeat: no-repeat
-  background-position: 50% 50%
   background-size: contain
 
 .states

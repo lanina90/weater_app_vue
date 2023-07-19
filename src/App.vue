@@ -80,17 +80,13 @@ const selectCity = async ({name, country, lon, lat}) => {
                 </div>
               </div>
             </section>
-
             <section v-if="!isError" class="section section-right">
               <div class="section highlights">
                 <nav class="header">
-                  <p @click="currentComponent = 'TodayHighlights'">Today's Highlights</p>
+                  <p @click="currentComponent = 'TodayHighlights'">Today</p>
                   <p @click="currentComponent = 'Forecast'">5 days forecast</p>
                 </nav>
-
-                <Highlights
-                    v-if="currentComponent === 'TodayHighlights'"
-                />
+                <Highlights v-if="currentComponent === 'TodayHighlights'"/>
                 <FiveDaysForecast
                     v-else-if="currentComponent === 'Forecast'"
                     :weatherInfo="weatherInfo"
@@ -163,7 +159,6 @@ h1
 .header
   display: flex
   height: 80px
-
 
   & > p
     border-bottom: 3px solid black

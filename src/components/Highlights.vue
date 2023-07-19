@@ -1,12 +1,15 @@
 <script setup>
-import { computed, onMounted, watch} from 'vue'
+import { computed, onMounted, watch, ref} from 'vue'
 import {getPressureMm, getTime} from "@/utils";
 import Chart from "@/components/Chart.vue";
 import { useStore } from 'vuex';
 
 
 const store = useStore();
+const labels = ref([]);
+const data = ref([]);
 const weatherInfo = computed(() => store.state.weatherInfo);
+
 
 const timeZone = computed(() => weatherInfo.value?.timezone_offset)
 const sunriseTime = computed(() => {
@@ -17,10 +20,21 @@ const sunsetTime = computed(() => {
   return getTime(weatherInfo.value?.current.sunset + timeZone.value)
 })
 
+watch(weatherInfo, (newVal) => {
+  if (newVal) {
+    labels.value = newVal.hourly.map(item => {
+      let date = new Date(item.dt * 1000);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    });
+    data.value = newVal.hourly.map(item => item.temp)
+  }
+});
+
+
 </script>
 
 <template>
-  <div>
+  <div v-if="weatherInfo">
 
     <div class="highlights-wrapper">
       <div  class="highlight">
@@ -150,9 +164,8 @@ const sunsetTime = computed(() => {
           </div>
         </div>
       </div>
-
     </div>
-   <Chart/>
+    <Chart :labels="labels" :data="data"/>
   </div>
 </template>
 
