@@ -1,38 +1,60 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
+import {ref, watch, defineProps} from 'vue';
+import {API_KEY} from "@/constans";
+
 const props = defineProps({
   weatherInfo: {
-    type: [Object, null],
+    type: Object,
     required: true,
-  }
-})
+  },
+});
 
-const today = new Date().toLocaleString('en-En', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })
+const cityData = ref(null);
+
+const reverseGeocoding = async () => {
+  const { lat, lon } = props.weatherInfo;
+
+  try {
+    const response = await fetch(`http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${API_KEY}`);
+    cityData.value = await response.json();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+watch(() => props.weatherInfo,
+    () => {
+      reverseGeocoding();
+    })
+
+const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
 
 </script>
 
 <template>
   <div class="summary">
     <div
-        :style="`background-image: url('weather-main/${weatherInfo?.weather[0].description}.png')`"
+        :style="`background-image: url('weather-main/${weatherInfo?.current.weather[0].description}.png')`"
         class="pic-main"
     />
     <div class="weather">
       <div class="temp">
-        {{Math.round(weatherInfo?.main?.temp)}} °C
+        {{ Math.round(weatherInfo?.current?.temp) }} °C
       </div>
       <div class="weather-desc text-block">
-        {{capitalizedFirstLetter(weatherInfo?.weather[0].description)}}
+        {{ capitalizedFirstLetter(weatherInfo?.current.weather[0].description) }}
       </div>
     </div>
     <div class="city text-block">
-      {{weatherInfo?.name}},
-      {{weatherInfo?.sys?.country}}
+      {{ cityData && cityData[0]?.name }},
+      {{ cityData && cityData[0]?.country }}
     </div>
     <div class="date text-block">
-      {{today}}
+      {{ today }}
     </div>
   </div>
+
 </template>
 
 <style scoped lang="sass">

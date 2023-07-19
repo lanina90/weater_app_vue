@@ -1,6 +1,5 @@
 <script setup>
 import WeatherSummary from './components/WeatherSummary.vue'
-import Chart from "@/components/Chart.vue";
 import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
@@ -32,9 +31,10 @@ const searchResults = computed(() => {
   );
 });
 
-const selectCity = async (name) => {
-  await store.dispatch('selectCity', name);
+const selectCity = async ({name, country, lon, lat}) => {
+  await store.dispatch('selectCity', {name, country, lon, lat});
   searchQuery.value = '';
+
 };
 
 </script>
@@ -58,7 +58,11 @@ const selectCity = async (name) => {
                   <div v-if="searchResults.length > 0" class="autocomplete-results">
                     <div
                         v-for="(result, i) in searchResults"
-                        @click="selectCity(result.name)"
+                        @click="selectCity({
+                        name: result.name,
+                        country: result.country,
+                        lon: result.lon,
+                        lat: result.lat})"
                         :key="i"
                         class="autocomplete-result">
                       {{ result.name }}, {{ result.country }}
@@ -66,8 +70,8 @@ const selectCity = async (name) => {
                   </div>
                 </div>
                 <WeatherSummary
-                    v-if="!isError"
-                    :weatherInfo="weatherInfo"/>
+                v-if="!isError"
+                :weatherInfo="weatherInfo"/>
                 <div v-else class="error">
                   <div class="error-title">Oops....Something went wrong</div>
                   <div v-if="errorMessage" class="error-message">
@@ -81,15 +85,16 @@ const selectCity = async (name) => {
               <div class="section highlights">
                 <nav class="header">
                   <p @click="currentComponent = 'TodayHighlights'">Today's Highlights</p>
-                  <p @click="currentComponent = 'Chart'">Temperature</p>
                   <p @click="currentComponent = 'Forecast'">5 days forecast</p>
-
                 </nav>
+
                 <Highlights
                     v-if="currentComponent === 'TodayHighlights'"
-                    :weatherInfo="weatherInfo"/>
-                <FiveDaysForecast v-else-if="currentComponent === 'Forecast'"/>
-                <Chart v-else-if="currentComponent === 'Chart'"/>
+                />
+                <FiveDaysForecast
+                    v-else-if="currentComponent === 'Forecast'"
+                    :weatherInfo="weatherInfo"
+                />
               </div>
             </section>
           </div>
@@ -240,28 +245,7 @@ h1
     padding-top: 20px
     font-size: 18px
 
-.lds-dual-ring
-  display: inline-block
-  width: 90px
-  height: 90px
-  margin-left: 40%
 
-.lds-dual-ring:after
-  content: " "
-  display: block
-  width: 64px
-  height: 64px
-  margin: auto
-  border-radius: 50%
-  border: 6px solid #fff
-  border-color: #fff transparent #fff transparent
-  animation: lds-dual-ring 1.2s linear infinite
-
-@keyframes lds-dual-ring
-  0%
-    transform: rotate(0deg)
-  100%
-    transform: rotate(360deg)
 
 .autocomplete-results
   width: 100%

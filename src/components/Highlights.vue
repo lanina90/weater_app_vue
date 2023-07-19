@@ -1,29 +1,29 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, watch} from 'vue'
 import {getPressureMm, getTime} from "@/utils";
+import Chart from "@/components/Chart.vue";
+import { useStore } from 'vuex';
 
-const props = defineProps({
-  weatherInfo: {
-    type: [Object, null],
-    required: true,
-  }
-})
 
-const timeZone = computed(() => props.weatherInfo?.timezone )
+const store = useStore();
+const weatherInfo = computed(() => store.state.weatherInfo);
 
+const timeZone = computed(() => weatherInfo.value?.timezone_offset)
 const sunriseTime = computed(() => {
-  return getTime(props.weatherInfo?.sys.sunrise + timeZone.value)
+  return getTime(weatherInfo.value?.current.sunrise + timeZone.value)
 })
 
 const sunsetTime = computed(() => {
-  return getTime(props.weatherInfo?.sys.sunset + timeZone.value)
+  return getTime(weatherInfo.value?.current.sunset + timeZone.value)
 })
+
 </script>
 
 <template>
   <div>
+
     <div class="highlights-wrapper">
-      <div class="highlight">
+      <div  class="highlight">
         <div class="card">
           <div class="card-title">Wind</div>
           <div class="card-pic card-pic--wind"></div>
@@ -31,7 +31,7 @@ const sunsetTime = computed(() => {
             <div class="card-justify">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{weatherInfo?.wind.speed }}
+                  {{weatherInfo?.current.wind_speed }}
                 </div>
                 <div class="info-main-text">
                   m/s
@@ -39,7 +39,7 @@ const sunsetTime = computed(() => {
               </div>
               <div class="info-main">
                 <div class="info-main-num">
-                  {{weatherInfo?.wind.deg }}
+                  {{weatherInfo?.current.wind_deg }}
                 </div>
                 <div class="info-main-text">
                   deg
@@ -55,7 +55,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div  class="info-main-num">
-                {{ weatherInfo?.wind.gust !== undefined ? Math.round(weatherInfo?.wind.gust) : 0 }}
+                {{ weatherInfo?.current.wind_gust !== undefined ? Math.round(weatherInfo?.current.wind_gust) : 0 }}
               </div>
               <div class="info-main-text">
                 m/s
@@ -80,7 +80,7 @@ const sunsetTime = computed(() => {
             <div class="card-centered">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{getPressureMm(weatherInfo?.main.pressure) }}
+                  {{getPressureMm(weatherInfo?.current.pressure) }}
                 </div>
                 <div class="info-main-text"> mm </div>
               </div>
@@ -92,7 +92,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{Math.round(weatherInfo?.main.feels_like) }}
+                {{Math.round(weatherInfo?.current.feels_like) }}
               </div>
               <div class="info-main-text">°C </div>
             </div>
@@ -135,7 +135,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{weatherInfo?.clouds.all }}
+                {{weatherInfo?.current.clouds }}
               </div>
               <div class="info-main-text">
                 %
@@ -150,7 +150,9 @@ const sunsetTime = computed(() => {
           </div>
         </div>
       </div>
+
     </div>
+   <Chart/>
   </div>
 </template>
 

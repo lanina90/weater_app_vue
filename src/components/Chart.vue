@@ -3,12 +3,8 @@
 </script>
 
 <template>
-  <section class="section-bottom">
-    <div class="block-bottom">
-      <div class="block-bottom-texts">
-        Weather Chart
-      </div>
-    </div>
+  <section >
+    Weather Chart
   </section>
 </template>
 

@@ -12,3 +12,11 @@ export const getPressureMm = (hpa) => {
 export const getTime = (sec) => {
   return new Date(sec * 1000).toLocaleTimeString('uk-Ua', {timeZone: 'Atlantic/Reykjavik'})
 }
+
+export const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const day = date.getDate();
+  const month = date.toLocaleString('en-En', { month: 'long' });
+
+  return `${day} ${month}`
+}
