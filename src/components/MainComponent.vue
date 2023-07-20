@@ -104,6 +104,7 @@ const addToBookmark = (result) => {
               :weatherInfo="res"
               @click="setActiveCity(res)"
               :index="i"
+              :component="'main'"
           />
           <div v-else class="error">
             <div class="error-title">Oops....Something went wrong</div>

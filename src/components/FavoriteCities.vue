@@ -20,9 +20,9 @@ onMounted(async() => {
 
 <template>
 <div class="section">
-  <div v-for="(res) in bookmarksCities"  class="wrapper">
+  <div v-for="(res, i) in bookmarksCities"  class="wrapper">
     <div class="wrapper-summary">
-      <WeatherSummary index="" :weatherInfo="res"/>
+      <WeatherSummary :index="i" :weatherInfo="res" :component="'favorites'"/>
     </div>
     <div class="section-info">
       <nav class="header">
@@ -49,9 +49,6 @@ onMounted(async() => {
 .section
   background: url('@/assets/img/gradient-4.jpg') 0 0
   border-radius: 20px
-
-
-
 
 .wrapper
   display: flex

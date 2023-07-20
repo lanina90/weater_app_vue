@@ -9,10 +9,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  index:{
+  index: {
     type: Object,
     required: true,
-  }
+  },
+  component: {
+    type: String,
+    required: true,
+  },
 });
 const store = useStore();
 
@@ -35,7 +39,11 @@ const closeDeleteConfirmation = () => {
 };
 
 const deleteCity = (index) => {
-  store.dispatch('deleteCity', index);
+  if(props.component === 'main') {
+    store.dispatch('deleteCity', index);
+  } else if(props.component === 'favorites') {
+    store.dispatch('deleteBookmarkCity', index);
+  }
   closeDeleteConfirmation();
 };
 
@@ -45,8 +53,13 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
 
 <template>
   <div class="summary">
-    <div v-if="store.state.city.length > 1"
-         @click="openDeleteConfirmation(index, weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city )" class="pic-delete"/>
+    <div v-if="component === 'main' && store.state.city.length > 1"
+         @click="openDeleteConfirmation(index, weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city )"
+         class="pic-delete"/>
+
+    <div v-if="component === 'favorites'"
+         @click="openDeleteConfirmation(index, weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city )"
+         class="pic-delete"/>
 
     <DeleteConfirmationModal
         v-if="deleteConfirmation.isOpen"

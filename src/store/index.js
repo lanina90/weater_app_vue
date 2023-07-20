@@ -24,12 +24,16 @@ export default createStore({
     removeCity(state, index) {
       state.city = state.city.filter((c, i) => i !== index);
     },
+    deleteBookmarkCity(state,index) {
+      state.bookmarksCities = state.bookmarksCities.filter((_, i) => i !== index);
+      console.log('index', index);
+      console.log('bookmarksCities', state.bookmarksCities);
+    },
     setUserCity(state, userCity) {
       state.userCity = userCity;
     },
     setBookmarksCities(state, city) {
       state.bookmarksCities.push(city)
-
     },
 
     setWeatherInfo(state, { city, weatherInfo }) {
@@ -52,7 +56,6 @@ export default createStore({
         city.weatherInfo = weatherInfo;
         state.bookmarksCities.push(city);
       }
-
     },
     setIsError(state, isError) {
       state.isError = isError;
@@ -87,6 +90,9 @@ export default createStore({
     async setBookmarkCity({ commit, dispatch }, payload) {
       commit('setBookmarksCities', payload);
       await dispatch('getWeatherForBookmarks')
+    },
+    deleteBookmarkCity({ commit }, index) {
+      commit('deleteBookmarkCity', index);
     },
     async getUserLocation({ commit }) {
       try {
