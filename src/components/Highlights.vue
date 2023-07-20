@@ -5,42 +5,38 @@ import Chart from "@/components/Chart.vue";
 import { useStore } from 'vuex';
 
 
+const activeCity = computed(() => store.state.activeCity);
 const store = useStore();
 const labels = ref([]);
 const data = ref([]);
-const city = computed(() => store.state.city);
-
 
 const sunriseTime = computed(() => {
-  return getTime(weatherInfo.value?.current.sunrise + weatherInfo.value?.timezone_offset)
+  return getTime(activeCity.value?.weatherInfo.current.sunrise + activeCity.value?.weatherInfo.timezone_offset)
 })
 
 const sunsetTime = computed(() => {
-  return getTime(weatherInfo.value?.current.sunset + weatherInfo.value?.timezone_offset)
+  return getTime(activeCity.value?.weatherInfo.current.sunset + activeCity.value?.weatherInfo.timezone_offset)
 })
 
-// watch(
-//     () => city.value,
-//     (newVal) => {
-//       if (newVal) {
-//         labels.value = newVal.hourly.map(item => {
-//           let date = new Date(item.dt * 1000);
-//           return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-//         });
-//         data.value = newVal.hourly.map(item => item.temp)
-//       }
-//     },
-//     { immediate: true }
-// );
-
-
+watch(
+    () => activeCity.value,
+    (newVal) => {
+      if (newVal && newVal.weatherInfo) {
+        labels.value = newVal?.weatherInfo.hourly.map(item => {
+          let date = new Date(item.dt * 1000);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        });
+        data.value = newVal?.weatherInfo.hourly.map(item => item.temp)
+      }
+    },
+    { immediate: true }
+);
 
 </script>
 
 <template>
-  <div v-if="weatherInfo">
+  <div v-if="activeCity">
     <div
-        v-for="(result, i) in city.weatherInfo"
         :key='i'
         class="highlights-wrapper">
       <div  class="highlight">
@@ -51,7 +47,7 @@ const sunsetTime = computed(() => {
             <div class="card-justify">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{result?.current.wind_speed }}
+                  {{activeCity.weatherInfo?.current.wind_speed }}
                 </div>
                 <div class="info-main-text">
                   m/s
@@ -59,7 +55,7 @@ const sunsetTime = computed(() => {
               </div>
               <div class="info-main">
                 <div class="info-main-num">
-                  {{result?.current.wind_deg }}
+                  {{activeCity.weatherInfo?.current.wind_deg }}
                 </div>
                 <div class="info-main-text">
                   deg
@@ -75,7 +71,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div  class="info-main-num">
-                {{ result?.current.wind_gust !== undefined ? Math.round(result?.current.wind_gust) : 0 }}
+                {{ activeCity.weatherInfo?.current.wind_gust !== undefined ? Math.round(activeCity.weatherInfo?.current.wind_gust) : 0 }}
               </div>
               <div class="info-main-text">
                 m/s
@@ -100,7 +96,7 @@ const sunsetTime = computed(() => {
             <div class="card-centered">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{getPressureMm(result?.current.pressure) }}
+                  {{getPressureMm(activeCity.weatherInfo?.current.pressure) }}
                 </div>
                 <div class="info-main-text"> mm </div>
               </div>
@@ -112,7 +108,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{Math.round(result?.current.feels_like) }}
+                {{Math.round(activeCity.weatherInfo?.current.feels_like) }}
               </div>
               <div class="info-main-text">°C </div>
             </div>
@@ -135,14 +131,14 @@ const sunsetTime = computed(() => {
                 <div class="state-pic"></div>
                 <div class="state-title">Sunrise</div>
                 <div class="state-time">
-<!--                  {{sunriseTime}}-->
+                  {{sunriseTime}}
                 </div>
               </div>
               <div class="state">
                 <div class="state-pic state-pic--flipped"></div>
                 <div class="state-title">Sunset</div>
                 <div class="state-time">
-<!--                  {{sunsetTime}}-->
+                  {{sunsetTime}}
                 </div>
               </div>
             </div>
@@ -155,7 +151,7 @@ const sunsetTime = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{result?.current.clouds }}
+                {{activeCity.weatherInfo?.current.clouds }}
               </div>
               <div class="info-main-text">
                 %
@@ -171,7 +167,7 @@ const sunsetTime = computed(() => {
         </div>
       </div>
     </div>
-<!--    <Chart :labels="labels" :data="data"/>-->
+    <Chart :labels="labels" :data="data"/>
   </div>
 </template>
 

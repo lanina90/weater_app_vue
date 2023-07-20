@@ -4,20 +4,28 @@ import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
-import {ref, computed, onMounted, watch} from 'vue';
+import {ref, computed, onMounted, watch, toRaw, onUpdated  } from 'vue';
 
 const store = useStore();
 const searchQuery = ref('');
 const currentComponent = ref('TodayHighlights')
 const city = computed(() => store.state.city);
+const activeCity = computed(() => store.state.activeCity);
 const isError = store.state.isError;
 const errorMessage = store.state.errorMessage
-const isLoading = store.state.isLoading
+let isDataLoaded = ref(false);
+
 
 onMounted(async () => {
-  await store.dispatch('getUserLocation');
+
+  await store.dispatch('getUserLocation')
   await store.dispatch('getWeather');
   await store.dispatch('fetchCities');
+
+  if (city.value.length > 0 && activeCity.value === null) {
+    setActiveCity(city.value[0]);
+  }
+  isDataLoaded.value = true;
 });
 
 
@@ -31,27 +39,38 @@ const searchResults = computed(() => {
   );
 });
 
-const selectCity = async ({name, country, lon, lat}) => {
-  await store.dispatch('selectCity', {name, country, lon, lat});
+const selectCity = async (city) => {
+  await store.dispatch('selectCity', city);
+  const countryName = city.name ? city.name : city.city
+  const countryCode = city.countryCode ? city.countryCode : city.country
+  let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode);
+  setActiveCity(selectedCity)
   searchQuery.value = '';
 };
 
-const addCity = async ({name, country, lon, lat}) => {
-  await store.dispatch('addCity', {name, country, lon, lat});
+
+const addCity = async (result) => {
+  if (store.state.city.length >= 5) {
+    alert("You can only add up to 5 cities.");
+    return;
+  }
+  await store.dispatch('addCity', result);
   searchQuery.value = '';
 };
 
-watch(city, (newCityValue, oldCityValue) => {
-  console.log('city', newCityValue);
-});
+const setActiveCity = (result) => {
+  store.dispatch('setActiveCity', result);
+};
 
 </script>
 
 <template>
   <div class="page">
+
     <main class="main">
       <div class="container">
-        <div v-if="isLoading" class="lds-dual-ring"></div>
+
+        <div v-if="!isDataLoaded" class="lds-dual-ring"></div>
         <div v-else class="laptop">
           <h1>Weather Forecasts App</h1>
           <div class="sections">
@@ -69,28 +88,23 @@ watch(city, (newCityValue, oldCityValue) => {
                         :key="i"
                         class="autocomplete-result">
                       <div
-                          @click="selectCity({
-                        name: result.name,
-                        country: result.country,
-                        lon: result.lon,
-                        lat: result.lat})">
+                          @click="selectCity(result)">
                         {{ result.name }}, {{ result.country }}
                       </div>
                       <div
-                          @click="addCity({
-                        name: result.name,
-                        country: result.country,
-                        lon: result.lon,
-                        lat: result.lat})"
+                          @click="addCity(result)"
                           class="pic-add"
                       ></div>
                     </div>
                   </div>
                 </div>
-                <div v-for="(res, i) in city" :key="i">
+                <div v-for="(res) in city" :key="res.lat">
                   <WeatherSummary
-                      v-if="!isError"
-                      :weatherInfo="res"/>
+                      :style="{ cursor: 'pointer' }"
+                      v-if="isDataLoaded"
+                      :weatherInfo="res"
+                      @click="setActiveCity(res)"
+                  />
                   <div v-else class="error">
                     <div class="error-title">Oops....Something went wrong</div>
                     <div v-if="errorMessage" class="error-message">
@@ -106,7 +120,10 @@ watch(city, (newCityValue, oldCityValue) => {
                   <p @click="currentComponent = 'TodayHighlights'">Today</p>
                   <p @click="currentComponent = 'Forecast'">5 days forecast</p>
                 </nav>
-                <Highlights v-if="currentComponent === 'TodayHighlights'"/>
+                <Highlights
+                    v-if="currentComponent === 'TodayHighlights' && isDataLoaded"
+                    :activeCity="activeCity"
+                />
                 <FiveDaysForecast
                     v-else-if="currentComponent === 'Forecast'"
                 />
@@ -121,6 +138,8 @@ watch(city, (newCityValue, oldCityValue) => {
 
 <style lang="sass" scoped>
 @import './assets/styles/main'
+.active
+  background-color: lightblue
 
 .page
   position: relative

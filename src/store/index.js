@@ -8,23 +8,29 @@ export default createStore({
     weatherInfo: null,
     isError: false,
     errorMessage: '',
-    isLoading: false,
-    cities: []
+    cities: [],
+    activeCity: null,
   },
   mutations: {
-    setCity(state, city) {
-      state.city = [city];
+    // setCity(state, city) {
+    //   state.city = [city];
+    // },
+    setCity(state, cities) {
+      state.city = cities;
     },
     addCity(state, city) {
       state.city.push(city);
+      console.log('addCity', city)
+    },
+    setActiveCity(state, activeCity) {
+      state.activeCity = activeCity;
     },
     setUserCity(state, userCity) {
       state.userCity = userCity;
+
     },
     setWeatherInfo(state, { city, weatherInfo }) {
-      const cityName = city.name ? city.name : city.city;
-      const countryName = city.hasOwnProperty('countryCode') ? city.countryCode : city.country;
-      const index = state.city.findIndex(c => c.name === cityName && c.country === countryName);
+      const index = state.city.findIndex(c => c.lat === city.lat && c.lon === city.lon);
 
       if (index !== -1) {
         state.city[index].weatherInfo = weatherInfo;
@@ -47,6 +53,10 @@ export default createStore({
     }
   },
   actions: {
+    setActiveCity({ commit }, city) {
+      commit('setActiveCity', city);
+
+    },
     async selectCity({ commit, dispatch }, payload) {
       commit('setCity', payload);
       await dispatch('getWeather');
@@ -54,12 +64,16 @@ export default createStore({
     async addCity({ commit, dispatch }, payload) {
       commit('addCity', payload);
       await dispatch('getWeather');
+      console.log(payload)
     },
     async getUserLocation({ commit }) {
-      await fetch('http://ip-api.com/json')
-        .then(response => response.json())
-        .then(data => commit('setUserCity', data))
-        .catch(error => console.error(error));
+      try {
+        const response = await fetch('http://ip-api.com/json');
+        const data = await response.json();
+        commit('setUserCity', data);
+      } catch (error) {
+        console.error(error);
+      }
     },
     async getWeather({ state, commit }) {
 
@@ -82,6 +96,7 @@ export default createStore({
             });
         });
         await Promise.all(weatherRequests);
+
       } catch (e) {
         commit('setIsError', true);
         commit('setErrorMessage', 'Something went wrong...');

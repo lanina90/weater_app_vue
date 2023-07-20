@@ -6,15 +6,15 @@ import {useStore} from 'vuex';
 import {computed} from 'vue'
 
 const store = useStore();
-const weatherInfo = computed(() => store.state.weatherInfo);
+const activeCity = computed(() => store.state.activeCity);
 
 const daily = computed(() => {
-  return weatherInfo.value?.daily ?? [];
+  return activeCity.value?.weatherInfo?.daily ?? [];
 });
 
 const timezoneOffset =
     computed(() => {
-      return weatherInfo.value?.timezone_offset
+      return activeCity.value?.weatherInfo?.timezone_offset
     });
 
 const labels = computed(() =>
@@ -26,7 +26,6 @@ const labels = computed(() =>
 const data = computed(() =>
     daily.value.map(item => (item.temp.max + item.temp.min) / 2)
 );
-
 
 </script>
 

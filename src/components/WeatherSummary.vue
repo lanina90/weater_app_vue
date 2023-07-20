@@ -1,6 +1,6 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
-import {defineProps, watch} from 'vue';
+import {defineProps} from 'vue';
 
 
 const props = defineProps({
@@ -10,18 +10,14 @@ const props = defineProps({
   },
 });
 
-// console.log(props.weatherInfo);
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
-
-watch(props, (newCityValue, oldCityValue) => {
-  console.log(props.weatherInfo);
-});
 
 </script>
 
 <template>
   <div class="summary">
+    <div class="pic-delete"/>
     <div
         :style="`background-image: url('weather-main/${weatherInfo?.weatherInfo?.current?.weather[0].description}.png')`"
         class="pic-main"
@@ -35,8 +31,8 @@ watch(props, (newCityValue, oldCityValue) => {
       </div>
     </div>
     <div class="city text-block">
-      {{weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city }},
-      {{weatherInfo?.countryCode ? weatherInfo?.countryCode : weatherInfo?.country  }}
+      {{ weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city }},
+      {{ weatherInfo?.countryCode ? weatherInfo?.countryCode : weatherInfo?.country }}
     </div>
     <div class="date text-block">
       {{ today }}
@@ -46,6 +42,15 @@ watch(props, (newCityValue, oldCityValue) => {
 
 <style scoped lang="sass">
 @import '../assets/styles/main'
+
+.summary
+  margin: 10px 0
+  padding: 10px
+  border-radius: 20px
+  box-shadow: 0 0 10px #0e100f
+  position: relative
+
+
 .pic-main
   width: 60px
   height: 60px
@@ -53,6 +58,14 @@ watch(props, (newCityValue, oldCityValue) => {
   background-repeat: no-repeat
   background-position: 50% 50%
   background-size: contain
+
+.pic-delete
+  background-image: url('/src/assets/img/remove-btn.svg')
+  width: 20px
+  height: 20px
+  position: absolute
+  top: 20px
+  right: 20px
 
 .city
   font-size: 24px
