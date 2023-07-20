@@ -16,7 +16,17 @@ export default createStore({
       state.city = city;
     },
     addCity(state, city) {
-      state.city.push(city);
+      console.log('city', city);
+      const isCityExists = state.city.some(item => item.lon === city.lon && item.lat === city.lat);
+      if (!isCityExists) {
+        state.city.push(city);
+      }
+      // state.city.push(city);
+      console.log('state.city', state.city);
+
+      // if (!state.city.includes(city)) {
+      //   state.city.push(city);
+      // }
     },
     setActiveCity(state, activeCity) {
       state.activeCity = activeCity;
@@ -24,18 +34,17 @@ export default createStore({
     removeCity(state, index) {
       state.city = state.city.filter((c, i) => i !== index);
     },
-    deleteBookmarkCity(state,index) {
-      state.bookmarksCities = state.bookmarksCities.filter((_, i) => i !== index);
-      console.log('index', index);
-      console.log('bookmarksCities', state.bookmarksCities);
-    },
     setUserCity(state, userCity) {
       state.userCity = userCity;
     },
     setBookmarksCities(state, city) {
-      state.bookmarksCities.push(city)
+      if (!state.bookmarksCities.includes(city)) {
+        state.bookmarksCities.push(city);
+      }
     },
-
+    deleteBookmarkCity(state,index) {
+      state.bookmarksCities = state.bookmarksCities.filter((_, i) => i !== index);
+    },
     setWeatherInfo(state, { city, weatherInfo }) {
       const index = state.city.findIndex(c => c.lat === city.lat && c.lon === city.lon);
 
