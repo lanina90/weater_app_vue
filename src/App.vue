@@ -4,7 +4,7 @@ import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
-import {ref, computed, onMounted, watch, toRaw, onUpdated  } from 'vue';
+import {ref, computed, onMounted  } from 'vue';
 
 const store = useStore();
 const searchQuery = ref('');
@@ -51,6 +51,7 @@ const selectCity = async (city) => {
 
 const addCity = async (result) => {
   if (store.state.city.length >= 5) {
+    searchQuery.value = '';
     alert("You can only add up to 5 cities.");
     return;
   }

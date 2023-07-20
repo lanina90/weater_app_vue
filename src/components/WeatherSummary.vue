@@ -1,7 +1,8 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
-import {defineProps} from 'vue';
+import {defineProps, ref} from 'vue';
 import {useStore} from 'vuex';
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 
 const props = defineProps({
   weatherInfo: {
@@ -14,11 +15,29 @@ const props = defineProps({
   }
 });
 const store = useStore();
-console.log(props.weatherInfo);
-const deleteCity = (index) => {
-  store.dispatch('deleteCity', index);
+
+const deleteConfirmation = ref({
+  isOpen: false,
+  city: null,
+  cityName: null
+});
+
+const openDeleteConfirmation = (index, cityName) => {
+  deleteConfirmation.value.isOpen = true;
+  deleteConfirmation.value.city = index;
+  deleteConfirmation.value.cityName = cityName;
 };
 
+const closeDeleteConfirmation = () => {
+  deleteConfirmation.value.isOpen = false;
+  deleteConfirmation.value.city = null;
+  deleteConfirmation.value.cityName = null;
+};
+
+const deleteCity = (index) => {
+  store.dispatch('deleteCity', index);
+  closeDeleteConfirmation();
+};
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
 
@@ -26,7 +45,15 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
 
 <template>
   <div class="summary">
-    <div @click="deleteCity(index)" class="pic-delete"/>
+    <div v-if="store.state.city.length > 1"
+         @click="openDeleteConfirmation(index, weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city )" class="pic-delete"/>
+    <DeleteConfirmationModal
+        v-if="deleteConfirmation.isOpen"
+        :city="deleteConfirmation.city"
+        :cityName="deleteConfirmation.cityName"
+        @confirm="deleteCity"
+        @cancel="closeDeleteConfirmation"
+    />
     <div
         :style="`background-image: url('weather-main/${weatherInfo?.weatherInfo?.current?.weather[0].description}.png')`"
         class="pic-main"

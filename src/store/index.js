@@ -18,7 +18,6 @@ export default createStore({
 
     addCity(state, city) {
       state.city.push(city);
-      console.log('addCity', city)
     },
     setActiveCity(state, activeCity) {
       state.activeCity = activeCity;
@@ -68,7 +67,6 @@ export default createStore({
     async addCity({ commit, dispatch }, payload) {
       commit('addCity', payload);
       await dispatch('getWeather');
-      console.log(payload)
     },
     async getUserLocation({ commit }) {
       try {
