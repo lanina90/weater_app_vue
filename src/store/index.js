@@ -5,17 +5,16 @@ export default createStore({
   state: {
     city: [],
     userCity: null,
-    weatherInfo: null,
     isError: false,
     errorMessage: '',
     cities: [],
     activeCity: null,
+    bookmarksCities: []
   },
   mutations: {
     setCity(state, city) {
       state.city = city;
     },
-
     addCity(state, city) {
       state.city.push(city);
     },
@@ -27,8 +26,12 @@ export default createStore({
     },
     setUserCity(state, userCity) {
       state.userCity = userCity;
+    },
+    setBookmarksCities(state, city) {
+      state.bookmarksCities.push(city)
 
     },
+
     setWeatherInfo(state, { city, weatherInfo }) {
       const index = state.city.findIndex(c => c.lat === city.lat && c.lon === city.lon);
 
@@ -38,6 +41,18 @@ export default createStore({
         city.weatherInfo = weatherInfo;
         state.city.push(city);
       }
+    },
+    setBookmarkWeatherInfo(state, { city, weatherInfo }) {
+
+      const index = state.bookmarksCities.findIndex(c => c.lat === city.lat && c.lon === city.lon);
+
+      if (index !== -1) {
+        state.bookmarksCities[index].weatherInfo = weatherInfo;
+      } else {
+        city.weatherInfo = weatherInfo;
+        state.bookmarksCities.push(city);
+      }
+
     },
     setIsError(state, isError) {
       state.isError = isError;
@@ -68,6 +83,11 @@ export default createStore({
       commit('addCity', payload);
       await dispatch('getWeather');
     },
+
+    async setBookmarkCity({ commit, dispatch }, payload) {
+      commit('setBookmarksCities', payload);
+      await dispatch('getWeatherForBookmarks')
+    },
     async getUserLocation({ commit }) {
       try {
         const response = await fetch('http://ip-api.com/json');
@@ -95,6 +115,34 @@ export default createStore({
             })
             .then(data => {
               commit('setWeatherInfo', { city, weatherInfo: data });
+            });
+        });
+        await Promise.all(weatherRequests);
+
+      } catch (e) {
+        commit('setIsError', true);
+        commit('setErrorMessage', 'Something went wrong...');
+      } finally {
+        commit('setIsLoading', false);
+      }
+
+    },
+    async getWeatherForBookmarks({ state, commit }) {
+
+      try {
+        const cities = state.bookmarksCities
+
+        const weatherRequests = cities.map(city => {
+          const queryCity = `lat=${city.lat}&lon=${city.lon}`;
+          return fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              commit('setBookmarkWeatherInfo', { city, weatherInfo: data });
             });
         });
         await Promise.all(weatherRequests);

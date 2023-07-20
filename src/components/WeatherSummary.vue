@@ -47,6 +47,7 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
   <div class="summary">
     <div v-if="store.state.city.length > 1"
          @click="openDeleteConfirmation(index, weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city )" class="pic-delete"/>
+
     <DeleteConfirmationModal
         v-if="deleteConfirmation.isOpen"
         :city="deleteConfirmation.city"
@@ -85,6 +86,7 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
   border-radius: 20px
   box-shadow: 0 0 10px #0e100f
   position: relative
+  height: 100%
 
 
 .pic-main
@@ -102,6 +104,7 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
   position: absolute
   top: 20px
   right: 20px
+
 
 .city
   font-size: 24px

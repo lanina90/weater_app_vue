@@ -1,20 +1,27 @@
 <script setup>
 
 import Chart from "@/components/Chart.vue";
-import {formatDate, getTime} from "../utils";
-import {useStore} from 'vuex';
+import {formatDate, getTime} from "@/utils";
 import {computed} from 'vue'
 
-const store = useStore();
-const activeCity = computed(() => store.state.activeCity);
 
+const props = defineProps({
+  activeCity: {
+    type: Object,
+    required: true
+  },
+  isChartVisible: {
+    type: Boolean,
+    required: true
+  }
+})
 const daily = computed(() => {
-  return activeCity.value?.weatherInfo?.daily ?? [];
+  return props.activeCity?.weatherInfo?.daily ?? [];
 });
 
 const timezoneOffset =
     computed(() => {
-      return activeCity.value?.weatherInfo?.timezone_offset
+      return props.activeCity?.weatherInfo?.timezone_offset
     });
 
 const labels = computed(() =>
@@ -78,7 +85,7 @@ const data = computed(() =>
 
     </div>
   </section>
-  <Chart :labels="labels" :data="data"/>
+  <Chart :labels="labels" :data="data" :isShow="isChartVisible"/>
 </template>
 
 <style scoped lang="sass">

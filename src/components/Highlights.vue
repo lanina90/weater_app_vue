@@ -4,22 +4,33 @@ import {getPressureMm, getTime} from "@/utils";
 import Chart from "@/components/Chart.vue";
 import { useStore } from 'vuex';
 
-
-const activeCity = computed(() => store.state.activeCity);
 const store = useStore();
+
+const props = defineProps({
+  activeCity: {
+    type: Object,
+    required: true
+  },
+  isChartVisible: {
+    type: Boolean,
+    required: true
+  }
+})
+
 const labels = ref([]);
 const data = ref([]);
 
+
 const sunriseTime = computed(() => {
-  return getTime(activeCity.value?.weatherInfo.current.sunrise + activeCity.value?.weatherInfo.timezone_offset)
+  return getTime(props.activeCity?.weatherInfo.current?.sunrise + props.activeCity?.weatherInfo.timezone_offset)
 })
 
 const sunsetTime = computed(() => {
-  return getTime(activeCity.value?.weatherInfo.current.sunset + activeCity.value?.weatherInfo.timezone_offset)
+  return getTime(props.activeCity?.weatherInfo.current?.sunset + props.activeCity?.weatherInfo.timezone_offset)
 })
 
 watch(
-    () => activeCity.value,
+    () => props.activeCity,
     (newVal) => {
       if (newVal && newVal.weatherInfo) {
         labels.value = newVal?.weatherInfo.hourly.map(item => {
@@ -37,7 +48,6 @@ watch(
 <template>
   <div v-if="activeCity">
     <div
-        :key='i'
         class="highlights-wrapper">
       <div  class="highlight">
         <div class="card">
@@ -167,7 +177,7 @@ watch(
         </div>
       </div>
     </div>
-    <Chart :labels="labels" :data="data"/>
+    <Chart :labels="labels" :data="data" :isShow="isChartVisible"/>
   </div>
 </template>
 

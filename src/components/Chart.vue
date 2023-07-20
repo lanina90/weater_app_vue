@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick  } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
+
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale);
 
 const props = defineProps({
   data: {
@@ -9,9 +11,16 @@ const props = defineProps({
   },
   labels: {
     type: Array,
-    required: false
+    required: true
+  },
+  isShow: {
+    type: Boolean,
+    required: true
   }
 })
+
+let myChart = null;
+const canvas = ref(null);
 
 
 const data = {
@@ -22,38 +31,50 @@ const data = {
       data: props.data,
       fill: false,
       borderColor: 'rgb(75, 192, 192)',
-      tension: 0.1,
-      pointLabel: true
+      tension: 0.1
     }
   ]
 };
 
-let myChart = null;
-
-const canvas = ref(null);
-
-onMounted(() => {
-  Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale);
-  const ctx = canvas.value.getContext('2d');
-  myChart = new Chart(ctx, {
-    type: 'line',
-    data: data,
-    options: {}
-
-  });
-});
-
-watch([() => props.data, () => props.labels], ([newData, newLabels]) => {
-  if (myChart) {
-    myChart.data.datasets[0].data = newData;
-    myChart.data.labels = newLabels;
-    myChart.update();
+watch(props.isShow, (newValue) => {
+  if (newValue) {
+    createChart();
+  } else {
+    destroyChart();
   }
 });
+
+async function createChart() {
+  await nextTick();
+  const ctx = canvas.value?.getContext('2d');
+  if (ctx && !myChart) {
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: data,
+      options: {}
+    });
+  }
+}
+
+function destroyChart() {
+  if (myChart) {
+    myChart.destroy();
+    myChart = null;
+  }
+}
+
+onMounted(() => {
+  createChart();
+});
+
+onUnmounted(() => {
+  destroyChart();
+});
+
 </script>
 
 <template>
-  <div class="chart-container">
+  <div v-if="isShow" class="chart-container">
     <canvas ref="canvas"></canvas>
   </div>
 </template>
