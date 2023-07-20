@@ -98,12 +98,13 @@ const setActiveCity = (result) => {
                     </div>
                   </div>
                 </div>
-                <div v-for="(res) in city" :key="res.lat">
+                <div v-for="(res, i) in city" :key="res.lat">
                   <WeatherSummary
                       :style="{ cursor: 'pointer' }"
                       v-if="isDataLoaded"
                       :weatherInfo="res"
                       @click="setActiveCity(res)"
+                      :index="i"
                   />
                   <div v-else class="error">
                     <div class="error-title">Oops....Something went wrong</div>

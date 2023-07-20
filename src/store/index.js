@@ -12,18 +12,19 @@ export default createStore({
     activeCity: null,
   },
   mutations: {
-    // setCity(state, city) {
-    //   state.city = [city];
-    // },
-    setCity(state, cities) {
-      state.city = cities;
+    setCity(state, city) {
+      state.city = city;
     },
+
     addCity(state, city) {
       state.city.push(city);
       console.log('addCity', city)
     },
     setActiveCity(state, activeCity) {
       state.activeCity = activeCity;
+    },
+    removeCity(state, index) {
+      state.city = state.city.filter((c, i) => i !== index);
     },
     setUserCity(state, userCity) {
       state.userCity = userCity;
@@ -56,6 +57,9 @@ export default createStore({
     setActiveCity({ commit }, city) {
       commit('setActiveCity', city);
 
+    },
+    deleteCity({ commit }, index) {
+      commit('removeCity', index);
     },
     async selectCity({ commit, dispatch }, payload) {
       commit('setCity', payload);

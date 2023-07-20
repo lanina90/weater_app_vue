@@ -1,14 +1,23 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
 import {defineProps} from 'vue';
-
+import {useStore} from 'vuex';
 
 const props = defineProps({
   weatherInfo: {
     type: Object,
     required: true,
   },
+  index:{
+    type: Object,
+    required: true,
+  }
 });
+const store = useStore();
+console.log(props.weatherInfo);
+const deleteCity = (index) => {
+  store.dispatch('deleteCity', index);
+};
 
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
@@ -17,7 +26,7 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
 
 <template>
   <div class="summary">
-    <div class="pic-delete"/>
+    <div @click="deleteCity(index)" class="pic-delete"/>
     <div
         :style="`background-image: url('weather-main/${weatherInfo?.weatherInfo?.current?.weather[0].description}.png')`"
         class="pic-main"
