@@ -3,7 +3,7 @@ import {API_KEY, API_URL_ONECALL} from "@/constans";
 
 export default createStore({
   state: {
-    city: null,
+    city: [],
     userCity: null,
     weatherInfo: null,
     isError: false,
@@ -13,13 +13,25 @@ export default createStore({
   },
   mutations: {
     setCity(state, city) {
-      state.city = city;
+      state.city = [city];
+    },
+    addCity(state, city) {
+      state.city.push(city);
     },
     setUserCity(state, userCity) {
       state.userCity = userCity;
     },
-    setWeatherInfo(state, weatherInfo) {
-      state.weatherInfo = weatherInfo;
+    setWeatherInfo(state, { city, weatherInfo }) {
+      const cityName = city.name ? city.name : city.city;
+      const countryName = city.hasOwnProperty('countryCode') ? city.countryCode : city.country;
+      const index = state.city.findIndex(c => c.name === cityName && c.country === countryName);
+
+      if (index !== -1) {
+        state.city[index].weatherInfo = weatherInfo;
+      } else {
+        city.weatherInfo = weatherInfo;
+        state.city.push(city);
+      }
     },
     setIsError(state, isError) {
       state.isError = isError;
@@ -39,27 +51,37 @@ export default createStore({
       commit('setCity', payload);
       await dispatch('getWeather');
     },
+    async addCity({ commit, dispatch }, payload) {
+      commit('addCity', payload);
+      await dispatch('getWeather');
+    },
     async getUserLocation({ commit }) {
       await fetch('http://ip-api.com/json')
         .then(response => response.json())
         .then(data => commit('setUserCity', data))
         .catch(error => console.error(error));
-
     },
     async getWeather({ state, commit }) {
+
       try {
         commit('setIsLoading', true);
-        const queryCity = state.city ? `lat=${state.city.lat}&lon=${state.city.lon}` : `lat=${state.userCity.lat}&lon=${state.userCity.lon}`;
-        const response = await fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`);
-        const data = await response.json();
 
+        const cities = state.city.length > 0 ? state.city : [state.userCity];
 
-        if (!response.ok) {
-          commit('setIsError', true);
-          commit('setErrorMessage', data?.message);
-        } else {
-          commit('setWeatherInfo', data);
-        }
+        const weatherRequests = cities.map(city => {
+          const queryCity = `lat=${city.lat}&lon=${city.lon}`;
+          return fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              commit('setWeatherInfo', { city, weatherInfo: data });
+            });
+        });
+        await Promise.all(weatherRequests);
       } catch (e) {
         commit('setIsError', true);
         commit('setErrorMessage', 'Something went wrong...');

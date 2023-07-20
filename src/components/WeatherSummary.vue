@@ -1,7 +1,7 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
-import {ref, watch, defineProps} from 'vue';
-import {API_KEY} from "@/constans";
+import {defineProps, watch} from 'vue';
+
 
 const props = defineProps({
   weatherInfo: {
@@ -10,51 +10,38 @@ const props = defineProps({
   },
 });
 
-const cityData = ref(null);
-
-const reverseGeocoding = async () => {
-  const { lat, lon } = props.weatherInfo;
-
-  try {
-    const response = await fetch(`http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=5&appid=${API_KEY}`);
-    cityData.value = await response.json();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-watch(() => props.weatherInfo,
-    () => {
-      reverseGeocoding();
-    })
+// console.log(props.weatherInfo);
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
+
+watch(props, (newCityValue, oldCityValue) => {
+  console.log(props.weatherInfo);
+});
 
 </script>
 
 <template>
   <div class="summary">
     <div
-        :style="`background-image: url('weather-main/${weatherInfo?.current.weather[0].description}.png')`"
+        :style="`background-image: url('weather-main/${weatherInfo?.weatherInfo?.current?.weather[0].description}.png')`"
         class="pic-main"
     />
     <div class="weather">
       <div class="temp">
-        {{ Math.round(weatherInfo?.current?.temp) }} °C
+        {{ Math.round(weatherInfo?.weatherInfo?.current?.temp) }} °C
       </div>
       <div class="weather-desc text-block">
-        {{ capitalizedFirstLetter(weatherInfo?.current.weather[0].description) }}
+        {{ capitalizedFirstLetter(weatherInfo?.weatherInfo?.current?.weather[0].description) }}
       </div>
     </div>
     <div class="city text-block">
-      {{ cityData && cityData[0]?.name }},
-      {{ cityData && cityData[0]?.country }}
+      {{weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city }},
+      {{weatherInfo?.countryCode ? weatherInfo?.countryCode : weatherInfo?.country  }}
     </div>
     <div class="date text-block">
       {{ today }}
     </div>
   </div>
-
 </template>
 
 <style scoped lang="sass">

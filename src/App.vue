@@ -3,14 +3,13 @@ import WeatherSummary from './components/WeatherSummary.vue'
 import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
-import { useStore } from 'vuex';
-import { ref, computed, onMounted } from 'vue';
+import {useStore} from 'vuex';
+import {ref, computed, onMounted, watch} from 'vue';
 
 const store = useStore();
-
 const searchQuery = ref('');
 const currentComponent = ref('TodayHighlights')
-const weatherInfo = computed(() => store.state.weatherInfo);
+const city = computed(() => store.state.city);
 const isError = store.state.isError;
 const errorMessage = store.state.errorMessage
 const isLoading = store.state.isLoading
@@ -20,6 +19,7 @@ onMounted(async () => {
   await store.dispatch('getWeather');
   await store.dispatch('fetchCities');
 });
+
 
 const searchResults = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 3) {
@@ -34,8 +34,16 @@ const searchResults = computed(() => {
 const selectCity = async ({name, country, lon, lat}) => {
   await store.dispatch('selectCity', {name, country, lon, lat});
   searchQuery.value = '';
-
 };
+
+const addCity = async ({name, country, lon, lat}) => {
+  await store.dispatch('addCity', {name, country, lon, lat});
+  searchQuery.value = '';
+};
+
+watch(city, (newCityValue, oldCityValue) => {
+  console.log('city', newCityValue);
+});
 
 </script>
 
@@ -53,29 +61,41 @@ const selectCity = async ({name, country, lon, lat}) => {
                   <input
                       v-model="searchQuery"
                       type="text"
-                      placeholder="Choose your city"
+                      placeholder="Search..."
                       class="search">
                   <div v-if="searchResults.length > 0" class="autocomplete-results">
                     <div
                         v-for="(result, i) in searchResults"
-                        @click="selectCity({
+                        :key="i"
+                        class="autocomplete-result">
+                      <div
+                          @click="selectCity({
+                        name: result.name,
+                        country: result.country,
+                        lon: result.lon,
+                        lat: result.lat})">
+                        {{ result.name }}, {{ result.country }}
+                      </div>
+                      <div
+                          @click="addCity({
                         name: result.name,
                         country: result.country,
                         lon: result.lon,
                         lat: result.lat})"
-                        :key="i"
-                        class="autocomplete-result">
-                      {{ result.name }}, {{ result.country }}
+                          class="pic-add"
+                      ></div>
                     </div>
                   </div>
                 </div>
-                <WeatherSummary
-                v-if="!isError"
-                :weatherInfo="weatherInfo"/>
-                <div v-else class="error">
-                  <div class="error-title">Oops....Something went wrong</div>
-                  <div v-if="errorMessage" class="error-message">
-                    {{ capitalizedFirstLetter(errorMessage) }}
+                <div v-for="(res, i) in city" :key="i">
+                  <WeatherSummary
+                      v-if="!isError"
+                      :weatherInfo="res"/>
+                  <div v-else class="error">
+                    <div class="error-title">Oops....Something went wrong</div>
+                    <div v-if="errorMessage" class="error-message">
+                      {{ capitalizedFirstLetter(errorMessage) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -89,7 +109,6 @@ const selectCity = async ({name, country, lon, lat}) => {
                 <Highlights v-if="currentComponent === 'TodayHighlights'"/>
                 <FiveDaysForecast
                     v-else-if="currentComponent === 'Forecast'"
-                    :weatherInfo="weatherInfo"
                 />
               </div>
             </section>
@@ -185,6 +204,13 @@ h1
     @media (max-width: 575px)
       flex-direction: column
 
+.search-block
+  display: flex
+  max-width: 100%
+  align-items: center
+  justify-content: space-between
+
+
 .city-inner
   position: relative
   display: inline-block
@@ -194,7 +220,7 @@ h1
     content: ''
     position: absolute
     top: 0
-    right: 10px
+    right: 9%
     width: 25px
     height: 25px
     background: url('./assets/img/search.svg') no-repeat 50% 50%
@@ -241,7 +267,6 @@ h1
     font-size: 18px
 
 
-
 .autocomplete-results
   width: 100%
   height: 350px
@@ -263,6 +288,16 @@ h1
 
 .autocomplete-result
   padding: 15px
+  cursor: pointer
+  display: flex
+  align-items: center
+  justify-content: space-between
+
+.pic-add
+  background: url('./assets/img/add-icon.svg') no-repeat 50% 50%
+  width: 20px
+  height: 20px
+  padding-right: 20px
   cursor: pointer
 
 </style>
