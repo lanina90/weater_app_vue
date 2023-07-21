@@ -4,7 +4,7 @@ import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
-import {ref, computed, onMounted} from 'vue';
+import {ref, computed, onMounted, watch} from 'vue';
 import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue";
 import { useI18n } from 'vue-i18n'
 
@@ -20,10 +20,12 @@ const bookmarksCities = computed(() => store.state.bookmarksCities);
 const { t } = useI18n()
 
 onMounted(async () => {
+
   if (city.value.length > 0 && activeCity.value === null) {
     setActiveCity(city.value[0]);
   }
 });
+
 
 const searchResults = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 3) {
@@ -55,7 +57,6 @@ const selectCity = async (res) => {
   const countryCode = res.countryCode ? res.countryCode : res.country
   let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode);
   setActiveCity(selectedCity);
-
   searchQuery.value = '';
 };
 
