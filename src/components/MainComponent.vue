@@ -5,6 +5,7 @@ import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
 import {ref, computed, onMounted} from 'vue';
+import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue";
 
 const store = useStore();
 const searchQuery = ref('');
@@ -14,7 +15,8 @@ const errorMessage = store.state.errorMessage
 let isDataLoaded = ref(false);
 const city = computed(() => store.state.city);
 const activeCity = computed(() => store.state.activeCity);
-
+const isWarningOpen = ref(false);
+const bookmarksCities = computed(() => store.state.bookmarksCities);
 
 onMounted(async () => {
   if (city.value.length > 0 && activeCity.value === null) {
@@ -61,6 +63,15 @@ const selectCity = async (city) => {
 const addToBookmark = (result) => {
   store.dispatch('setBookmarkCity', result);
   searchQuery.value = '';
+  if (bookmarksCities.value.length > 5) {
+    isWarningOpen.value = true;
+  }
+
+}
+
+
+const closeWarningModal = () => {
+  isWarningOpen.value = false
 }
 
 </script>
@@ -97,6 +108,10 @@ const addToBookmark = (result) => {
             </div>
           </div>
         </div>
+        <WarningBookmarksModal
+            v-if="isWarningOpen"
+            @close="closeWarningModal"
+        />
         <div v-for="(res, i) in city" :key="res.lat">
           <WeatherSummary
               :style="{ cursor: 'pointer' }"

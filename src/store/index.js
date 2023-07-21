@@ -16,17 +16,10 @@ export default createStore({
       state.city = city;
     },
     addCity(state, city) {
-      console.log('city', city);
       const isCityExists = state.city.some(item => item.lon === city.lon && item.lat === city.lat);
       if (!isCityExists) {
         state.city.push(city);
       }
-      // state.city.push(city);
-      console.log('state.city', state.city);
-
-      // if (!state.city.includes(city)) {
-      //   state.city.push(city);
-      // }
     },
     setActiveCity(state, activeCity) {
       state.activeCity = activeCity;
@@ -40,10 +33,12 @@ export default createStore({
     setBookmarksCities(state, city) {
       if (!state.bookmarksCities.includes(city)) {
         state.bookmarksCities.push(city);
+        localStorage.setItem('bookmarksCities', JSON.stringify(state.bookmarksCities));
       }
     },
-    deleteBookmarkCity(state,index) {
+    deleteBookmarkCity(state, index) {
       state.bookmarksCities = state.bookmarksCities.filter((_, i) => i !== index);
+      localStorage.setItem('bookmarksCities', JSON.stringify(state.bookmarksCities));
     },
     setWeatherInfo(state, { city, weatherInfo }) {
       const index = state.city.findIndex(c => c.lat === city.lat && c.lon === city.lon);
@@ -97,6 +92,7 @@ export default createStore({
     },
 
     async setBookmarkCity({ commit, dispatch }, payload) {
+      console.log('payload', payload)
       commit('setBookmarksCities', payload);
       await dispatch('getWeatherForBookmarks')
     },
@@ -145,9 +141,8 @@ export default createStore({
     async getWeatherForBookmarks({ state, commit }) {
 
       try {
-        const cities = state.bookmarksCities
-
-        const weatherRequests = cities.map(city => {
+        const savedCities = JSON.parse(localStorage.getItem('bookmarksCities'));
+        const weatherRequests = savedCities.map(city => {
           const queryCity = `lat=${city.lat}&lon=${city.lon}`;
           return fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`)
             .then(response => {
@@ -160,8 +155,7 @@ export default createStore({
               commit('setBookmarkWeatherInfo', { city, weatherInfo: data });
             });
         });
-        await Promise.all(weatherRequests);
-
+        await Promise.all(weatherRequests)
       } catch (e) {
         commit('setIsError', true);
         commit('setErrorMessage', 'Something went wrong...');

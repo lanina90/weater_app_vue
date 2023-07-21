@@ -20,26 +20,35 @@ onMounted(async() => {
 
 <template>
 <div class="section">
-  <div v-for="(res, i) in bookmarksCities"  class="wrapper">
-    <div class="wrapper-summary">
-      <WeatherSummary :index="i" :weatherInfo="res" :component="'favorites'"/>
+  <div v-if="bookmarksCities.length === 0">
+    <div class="wrapper">
+     <div class="wrapper-empty"> You have not added cities to this list</div>
     </div>
-    <div class="section-info">
-      <nav class="header">
-        <p @click="currentComponent = 'TodayHighlights'">Today</p>
-        <p @click="currentComponent = 'Forecast'">5 days forecast</p>
-      </nav>
-      <Highlights
-          v-if="currentComponent === 'TodayHighlights'"
-          :activeCity="res"
-          :isChartVisible="false"
-      />
-      <FiveDaysForecast
-          v-else-if="currentComponent === 'Forecast'"
-          :activeCity="res"
-          :isChartVisible="false"
-      />
+  </div>
+
+  <div v-else >
+    <div v-for="(res, i) in bookmarksCities"  class="wrapper">
+      <div class="wrapper-summary">
+        <WeatherSummary :index="i" :weatherInfo="res" :component="'favorites'"/>
+      </div>
+      <div class="section-info">
+        <nav class="header">
+          <p @click="currentComponent = 'TodayHighlights'">Today</p>
+          <p @click="currentComponent = 'Forecast'">5 days forecast</p>
+        </nav>
+        <Highlights
+            v-if="currentComponent === 'TodayHighlights'"
+            :activeCity="res"
+            :isChartVisible="false"
+        />
+        <FiveDaysForecast
+            v-else-if="currentComponent === 'Forecast'"
+            :activeCity="res"
+            :isChartVisible="false"
+        />
+      </div>
     </div>
+
   </div>
 </div>
 </template>
@@ -61,6 +70,13 @@ onMounted(async() => {
     display: flex
     flex-direction: column
     min-height: 450px
+
+  &-empty
+    height: 350px
+    width: 100%
+    text-align: center
+    padding: 15% 0
+
 
   &-summary
     width: 30%
