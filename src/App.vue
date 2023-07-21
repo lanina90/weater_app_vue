@@ -1,10 +1,14 @@
 <script setup>
 import {useStore} from 'vuex';
-import {ref, onMounted, reactive, onUnmounted} from 'vue';
+import {ref, onMounted, watch} from 'vue';
+import { useI18n } from 'vue-i18n'
 import FavoriteCities from "@/components/FavoriteCities.vue";
 import MainComponent from "@/components/MainComponent.vue";
 import Loader from "@/components/Loader.vue";
 
+const { t } = useI18n()
+const { locale } = useI18n();
+const language = ref('en');
 const store = useStore();
 const currentComponent = ref('Main')
 let isDataLoaded = ref(false);
@@ -16,6 +20,17 @@ onMounted(async () => {
   isDataLoaded.value = true;
 });
 
+watch(
+    () => locale.value,
+    async () => {
+      await store.dispatch('getWeather');
+    }
+);
+const changeLanguage = (lang) => {
+  localStorage.setItem('lang', lang )
+  locale.value = lang;
+  language.value = lang;
+}
 
 </script>
 
@@ -24,14 +39,16 @@ onMounted(async () => {
     <main class="container">
       <Loader v-if="!isDataLoaded"/>
       <div v-else class="laptop">
-        <h1>Weather Forecasts App</h1>
+        <button @click="changeLanguage('en')">Eng</button>
+        <button @click="changeLanguage('uk')">Укр</button>
+        <h1>{{ t('main.title') }}</h1>
         <nav class="laptop-header">
-          <p @click="currentComponent = 'Main'" :class="{ active: currentComponent === 'Main' }">Main</p>
-          <p @click="currentComponent = 'Bookmarks'" :class="{ active: currentComponent === 'Bookmarks' }">
-            Bookmarks</p>
+          <p @click="currentComponent = 'Main'" :class="{ active: currentComponent === 'Main' }">{{ t('main.main') }}</p>
+          <p @click="currentComponent = 'Favorites'" :class="{ active: currentComponent === 'Favorites' }">
+            {{ t('main.favorites') }}</p>
         </nav>
         <MainComponent v-if="currentComponent === 'Main'"/>
-        <FavoriteCities v-else-if="currentComponent === 'Bookmarks'"/>
+        <FavoriteCities v-else-if="currentComponent === 'Favorites'"/>
       </div>
     </main>
   </div>

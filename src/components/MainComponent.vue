@@ -6,6 +6,7 @@ import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
 import {ref, computed, onMounted} from 'vue';
 import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue";
+import { useI18n } from 'vue-i18n'
 
 const store = useStore();
 const searchQuery = ref('');
@@ -16,6 +17,7 @@ const city = computed(() => store.state.city);
 const activeCity = computed(() => store.state.activeCity);
 const isWarningOpen = ref(false);
 const bookmarksCities = computed(() => store.state.bookmarksCities);
+const { t } = useI18n()
 
 onMounted(async () => {
   if (city.value.length > 0 && activeCity.value === null) {
@@ -47,12 +49,13 @@ const setActiveCity = (result) => {
   store.dispatch('setActiveCity', result);
 };
 
-const selectCity = async (city) => {
-  await store.dispatch('selectCity', city);
-  const countryName = city.name ? city.name : city.city
-  const countryCode = city.countryCode ? city.countryCode : city.country
+const selectCity = async (res) => {
+  await store.dispatch('selectCity', res);
+  const countryName = res.name ? res.name : res.city
+  const countryCode = res.countryCode ? res.countryCode : res.country
   let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode);
-  setActiveCity(selectedCity)
+  setActiveCity(selectedCity);
+
   searchQuery.value = '';
 };
 
@@ -62,7 +65,6 @@ const addToBookmark = (result) => {
   if (bookmarksCities.value.length > 5) {
     isWarningOpen.value = true;
   }
-
 }
 
 const closeWarningModal = () => {
@@ -79,7 +81,7 @@ const closeWarningModal = () => {
           <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search..."
+              :placeholder="t('placeholder')"
               class="search">
           <div v-if="searchResults.length > 0" class="autocomplete-results">
             <div
@@ -126,8 +128,8 @@ const closeWarningModal = () => {
     <section v-if="!isError" class="section section-right">
       <div class="section highlights">
         <nav class="header">
-          <p @click="currentComponent = 'TodayHighlights'">Today</p>
-          <p @click="currentComponent = 'Forecast'">5 days forecast</p>
+          <p @click="currentComponent = 'TodayHighlights'">{{t('today')}}</p>
+          <p @click="currentComponent = 'Forecast'">{{t('forecast')}}</p>
         </nav>
         <Highlights
             v-if="currentComponent === 'TodayHighlights'"

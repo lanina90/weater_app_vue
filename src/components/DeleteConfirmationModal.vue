@@ -1,5 +1,6 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   city: {
@@ -13,7 +14,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['confirm', 'cancel']);
-
+const { t } = useI18n()
 const deleteCity = () => {
   emits('confirm', props.city);
 };
@@ -26,10 +27,10 @@ const cancelDelete = () => {
 <template>
   <div class="modal">
     <div class="modal-content">
-      <p>Are you sure you want delete {{cityName}} from the list?</p>
+      <p>{{t('confirmModal.text', {cityName: cityName})}}</p>
       <div class="modal-buttons">
-        <button @click="deleteCity">Confirm</button>
-        <button @click="cancelDelete">Cancel</button>
+        <button @click="deleteCity">{{t('confirmModal.confirm')}}</button>
+        <button @click="cancelDelete">{{t('confirmModal.cancel')}}</button>
       </div>
     </div>
   </div>

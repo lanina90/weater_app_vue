@@ -13,7 +13,7 @@ export default createStore({
   },
   mutations: {
     setCity(state, city) {
-      state.city = city;
+      state.city = [city];
     },
     addCity(state, city) {
       const isCityExists = state.city.some(item => item.lon === city.lon && item.lat === city.lat);
@@ -77,7 +77,6 @@ export default createStore({
   actions: {
     setActiveCity({ commit }, city) {
       commit('setActiveCity', city);
-
     },
     deleteCity({ commit }, index) {
       commit('removeCity', index);
@@ -111,11 +110,11 @@ export default createStore({
 
       try {
         commit('setIsLoading', true);
-
         const cities = state.city.length > 0 ? state.city : [state.userCity];
 
+        const  lang = localStorage.getItem('lang')
         const weatherRequests = cities.map(city => {
-          const queryCity = `lat=${city.lat}&lon=${city.lon}`;
+          const queryCity = `lat=${city.lat}&lon=${city.lon}&lang=${lang}`;
           return fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`)
             .then(response => {
               if (!response.ok) {
@@ -137,12 +136,14 @@ export default createStore({
       }
 
     },
-    async getWeatherForBookmarks({ state, commit }) {
+    async getWeatherForBookmarks({ commit }) {
 
       try {
         const savedCities = JSON.parse(localStorage.getItem('bookmarksCities'));
+        const  lang = localStorage.getItem('lang')
+
         const weatherRequests = savedCities.map(city => {
-          const queryCity = `lat=${city.lat}&lon=${city.lon}`;
+          const queryCity = `lat=${city.lat}&lon=${city.lon}&lang=${lang}`;
           return fetch(`${API_URL_ONECALL}?${queryCity}&exclude=minutely&units=metric&appid=${API_KEY}`)
             .then(response => {
               if (!response.ok) {

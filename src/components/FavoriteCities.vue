@@ -4,10 +4,11 @@ import WeatherSummary from "@/components/WeatherSummary.vue";
 import Highlights from "@/components/Highlights.vue";
 import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import {useStore} from 'vuex';
-import {ref, computed, watch, onMounted} from 'vue';
+import {ref, computed, onMounted, watch} from 'vue';
+import { useI18n } from 'vue-i18n'
 
 const store = useStore();
-
+const { locale } = useI18n();
 const currentComponent = ref('TodayHighlights')
 const bookmarksCities = computed(() => store.state.bookmarksCities);
 const isDataLoaded = ref(false)
@@ -16,6 +17,13 @@ onMounted(async() => {
   await store.dispatch('getWeatherForBookmarks')
   isDataLoaded.value = true
 })
+watch(
+    () => locale.value,
+
+    async () => {
+      await store.dispatch('getWeatherForBookmarks');
+    }
+);
 
 </script>
 

@@ -2,7 +2,7 @@
 import { computed, watch, ref} from 'vue'
 import {getPressureMm, getTime} from "@/utils";
 import Chart from "@/components/Chart.vue";
-
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   activeCity: {
@@ -15,7 +15,7 @@ const props = defineProps({
   }
 })
 
-
+const { t } = useI18n()
 const labels = ref([]);
 const data = ref([]);
 
@@ -49,7 +49,7 @@ watch(
         class="highlights-wrapper">
       <div  class="highlight">
         <div class="card">
-          <div class="card-title">Wind</div>
+          <div class="card-title">{{ t('wind') }}</div>
           <div class="card-pic card-pic--wind"></div>
           <div class="card-info">
             <div class="card-justify">
@@ -58,7 +58,7 @@ watch(
                   {{activeCity.weatherInfo?.current.wind_speed }}
                 </div>
                 <div class="info-main-text">
-                  m/s
+                  {{ t('meters') }}
                 </div>
               </div>
               <div class="info-main">
@@ -66,7 +66,7 @@ watch(
                   {{activeCity.weatherInfo?.current.wind_deg }}
                 </div>
                 <div class="info-main-text">
-                  deg
+                  {{ t('deg') }}
                 </div>
               </div>
             </div>
@@ -74,7 +74,7 @@ watch(
         </div>
         <div class="card-small">
           <div class="card-small-title">
-            Wind gusts
+            {{ t('gust') }}
           </div>
           <div class="card-small-info">
             <div class="card-small-data">
@@ -82,13 +82,13 @@ watch(
                 {{ activeCity.weatherInfo?.current.wind_gust !== undefined ? Math.round(activeCity.weatherInfo?.current.wind_gust) : 0 }}
               </div>
               <div class="info-main-text">
-                m/s
+                {{ t('meters') }}
               </div>
             </div>
             <div class="card-small-hint">
               <div class="card-small-pic card-small-pic--wind"></div>
               <div class="card-small-text">
-                Is a sudden, brief increase in speed of the wind
+                {{ t('gustDesc') }}
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ watch(
       <div class="highlight">
         <div class="card">
           <div class="card-title">
-            Pressure
+            {{ t('pressure') }}
           </div>
           <div class="card-pic card-pic--pressure"></div>
           <div class="card-info">
@@ -106,13 +106,13 @@ watch(
                 <div class="info-main-num">
                   {{getPressureMm(activeCity.weatherInfo?.current.pressure) }}
                 </div>
-                <div class="info-main-text"> mm </div>
+                <div class="info-main-text"> {{ t('mm') }} </div>
               </div>
             </div>
           </div>
         </div>
         <div class="card-small">
-          <div class="card-small-title">Feels like </div>
+          <div class="card-small-title">{{ t('feels') }}</div>
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
@@ -123,7 +123,7 @@ watch(
             <div class="card-small-hint">
               <div class="card-small-pic card-small-pic--margin card-small-pic--pressure"></div>
               <div class="card-small-text">
-                How hot or cold it really feels
+                {{ t('feelsDesc') }}
               </div>
             </div>
           </div>
@@ -131,20 +131,20 @@ watch(
       </div>
       <div class="highlight">
         <div class="card">
-          <div class="card-title">Sunrise and sunset</div>
+          <div class="card-title">{{ t('sunriseAndSunset') }}</div>
           <div class="card-pic card-pic--sun"></div>
           <div class="card-info">
             <div class="states">
               <div class="state">
                 <div class="state-pic"></div>
-                <div class="state-title">Sunrise</div>
+                <div class="state-title">{{ t('sunrise') }}</div>
                 <div class="state-time">
                   {{sunriseTime}}
                 </div>
               </div>
               <div class="state">
                 <div class="state-pic state-pic--flipped"></div>
-                <div class="state-title">Sunset</div>
+                <div class="state-title">{{ t('sunset') }}</div>
                 <div class="state-time">
                   {{sunsetTime}}
                 </div>
@@ -154,7 +154,7 @@ watch(
         </div>
         <div class="card-small">
           <div class="card-small-title">
-            Cloudiness
+            {{ t('cloudiness') }}
           </div>
           <div class="card-small-info">
             <div class="card-small-data">
@@ -168,7 +168,7 @@ watch(
             <div class="card-small-hint">
               <div class="card-small-pic card-small-pic--sun"></div>
               <div class="card-small-text">
-                The sky fraction obscured by clouds
+                {{ t('cloudinessDesc') }}
               </div>
             </div>
           </div>

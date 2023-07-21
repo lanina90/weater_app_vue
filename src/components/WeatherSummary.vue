@@ -1,9 +1,8 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
-import {defineProps, ref, computed} from 'vue';
+import {defineProps, ref, computed, watch} from 'vue';
 import {useStore} from 'vuex';
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
-
 
 const props = defineProps({
   weatherInfo: {
@@ -20,6 +19,7 @@ const props = defineProps({
   },
 });
 const store = useStore();
+
 
 const deleteConfirmation = ref({
   isOpen: false,
@@ -46,7 +46,6 @@ const closeDeleteConfirmation = () => {
   deleteConfirmation.value.cityName = null;
 };
 
-
 const deleteCity = (index) => {
   if (props.component === 'main') {
     store.dispatch('deleteCity', index);
@@ -57,6 +56,9 @@ const deleteCity = (index) => {
 };
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
+const encodedWeatherDescription = encodeURIComponent(props.weatherInfo?.current?.weather[0]?.description);
+console.log('encodedWeatherDescription', encodedWeatherDescription)
+console.log('desc', props.weatherInfo?.weatherInfo?.current?.weather[0]?.description)
 
 </script>
 <template>
@@ -73,7 +75,7 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
             class="pic-bookmark remove"/>
       </div>
     <div
-        :style="`background-image: url('weather-main/${weatherInfo?.weatherInfo?.current?.weather[0].description}.png')`"
+        :style="`background-image: url('weather-main/${encodedWeatherDescription}.png')`"
         class="pic-main"
     />
     <div class="weather">

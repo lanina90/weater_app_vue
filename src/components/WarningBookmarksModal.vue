@@ -1,7 +1,9 @@
 <script setup>
 import { defineEmits } from 'vue';
+import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['close']);
+const { t } = useI18n()
 
 const closeModal = () => {
   emits('close');
@@ -12,9 +14,9 @@ const closeModal = () => {
 <template>
   <div class="modal">
     <div class="modal-content">
-      <p>The maximum number of cities is 5. Please delete a city to add a new one.</p>
+      <p>{{t('warningBookmarkModal.text')}}</p>
       <div class="modal-buttons">
-        <button @click="closeModal">Return</button>
+        <button @click="closeModal">{{t('warningBookmarkModal.return')}}</button>
       </div>
     </div>
   </div>

@@ -3,7 +3,7 @@
 import Chart from "@/components/Chart.vue";
 import {formatDate, getTime} from "@/utils";
 import {computed} from 'vue'
-
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   activeCity: {
@@ -15,6 +15,7 @@ const props = defineProps({
     required: true
   }
 })
+const { t } = useI18n()
 const daily = computed(() => {
   return props.activeCity?.weatherInfo?.daily ?? [];
 });
@@ -62,7 +63,7 @@ const data = computed(() =>
           </div>
           <div>
             <div class="card-pic wind"></div>
-            <div> {{ item.wind_speed }} m/s</div>
+            <div> {{ item.wind_speed }} {{t('meters')}}</div>
           </div>
           <div>
             <div class="card-pic uv"></div>
@@ -72,12 +73,12 @@ const data = computed(() =>
         <div class="states">
           <div class="state">
             <div class="state-pic"></div>
-            <div class="state-title">Sunrise</div>
+            <div class="state-title">{{t('sunrise')}}</div>
             <div class="state-time">{{ getTime(item.sunrise + timezoneOffset) }}</div>
           </div>
           <div class="state">
             <div class="state-pic state-pic--flipped"></div>
-            <div class="state-title">Sunset</div>
+            <div class="state-title">{{t('sunset')}}</div>
             <div class="state-time">{{ getTime(item.sunset + timezoneOffset) }}</div>
           </div>
         </div>
