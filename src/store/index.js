@@ -92,7 +92,6 @@ export default createStore({
     },
 
     async setBookmarkCity({ commit, dispatch }, payload) {
-      console.log('payload', payload)
       commit('setBookmarksCities', payload);
       await dispatch('getWeatherForBookmarks')
     },

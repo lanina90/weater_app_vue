@@ -12,7 +12,6 @@ const searchQuery = ref('');
 const currentComponent = ref('TodayHighlights')
 const isError = store.state.isError;
 const errorMessage = store.state.errorMessage
-let isDataLoaded = ref(false);
 const city = computed(() => store.state.city);
 const activeCity = computed(() => store.state.activeCity);
 const isWarningOpen = ref(false);
@@ -22,9 +21,7 @@ onMounted(async () => {
   if (city.value.length > 0 && activeCity.value === null) {
     setActiveCity(city.value[0]);
   }
-  isDataLoaded.value = true;
 });
-
 
 const searchResults = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 3) {
@@ -50,7 +47,6 @@ const setActiveCity = (result) => {
   store.dispatch('setActiveCity', result);
 };
 
-
 const selectCity = async (city) => {
   await store.dispatch('selectCity', city);
   const countryName = city.name ? city.name : city.city
@@ -68,7 +64,6 @@ const addToBookmark = (result) => {
   }
 
 }
-
 
 const closeWarningModal = () => {
   isWarningOpen.value = false
@@ -115,14 +110,12 @@ const closeWarningModal = () => {
         <div v-for="(res, i) in city" :key="res.lat">
           <WeatherSummary
               :style="{ cursor: 'pointer' }"
-              v-if="isDataLoaded"
               :weatherInfo="res"
               @click="setActiveCity(res)"
               :index="i"
               :component="'main'"
           />
-          <div v-else class="error">
-            <div class="error-title">Oops....Something went wrong</div>
+          <div class="error">
             <div v-if="errorMessage" class="error-message">
               {{ capitalizedFirstLetter(errorMessage) }}
             </div>
@@ -137,7 +130,7 @@ const closeWarningModal = () => {
           <p @click="currentComponent = 'Forecast'">5 days forecast</p>
         </nav>
         <Highlights
-            v-if="currentComponent === 'TodayHighlights' && isDataLoaded"
+            v-if="currentComponent === 'TodayHighlights'"
             :activeCity="activeCity"
             :isChartVisible="true"
         />

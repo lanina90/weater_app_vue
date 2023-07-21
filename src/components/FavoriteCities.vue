@@ -10,16 +10,18 @@ const store = useStore();
 
 const currentComponent = ref('TodayHighlights')
 const bookmarksCities = computed(() => store.state.bookmarksCities);
-
+const isDataLoaded = ref(false)
 
 onMounted(async() => {
   await store.dispatch('getWeatherForBookmarks')
+  isDataLoaded.value = true
 })
 
 </script>
 
 <template>
 <div class="section">
+  <Loader v-if="!isDataLoaded"/>
   <div v-if="bookmarksCities.length === 0">
     <div class="wrapper">
      <div class="wrapper-empty"> You have not added cities to this list</div>

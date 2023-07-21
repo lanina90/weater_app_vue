@@ -1,10 +1,8 @@
 <script setup>
-import { computed, onMounted, watch, ref} from 'vue'
+import { computed, watch, ref} from 'vue'
 import {getPressureMm, getTime} from "@/utils";
 import Chart from "@/components/Chart.vue";
-import { useStore } from 'vuex';
 
-const store = useStore();
 
 const props = defineProps({
   activeCity: {
@@ -17,9 +15,9 @@ const props = defineProps({
   }
 })
 
+
 const labels = ref([]);
 const data = ref([]);
-
 
 const sunriseTime = computed(() => {
   return getTime(props.activeCity?.weatherInfo.current?.sunrise + props.activeCity?.weatherInfo.timezone_offset)

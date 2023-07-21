@@ -3,6 +3,7 @@ import {useStore} from 'vuex';
 import {ref, onMounted, reactive, onUnmounted} from 'vue';
 import FavoriteCities from "@/components/FavoriteCities.vue";
 import MainComponent from "@/components/MainComponent.vue";
+import Loader from "@/components/Loader.vue";
 
 const store = useStore();
 const currentComponent = ref('Main')
@@ -21,7 +22,7 @@ onMounted(async () => {
 <template>
   <div class="page">
     <main class="container">
-      <div v-if="!isDataLoaded" class="lds-dual-ring"></div>
+      <Loader v-if="!isDataLoaded"/>
       <div v-else class="laptop">
         <h1>Weather Forecasts App</h1>
         <nav class="laptop-header">
