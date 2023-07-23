@@ -1,8 +1,8 @@
 <script setup>
 
-import Chart from "@/components/Chart.vue";
-import {formatDate} from "@/utils";
-import {computed} from 'vue'
+import Chart from "@/components/Chart.vue"
+import {formatDate} from "@/utils"
+import {computed, defineProps} from 'vue'
 import {useI18n} from 'vue-i18n'
 
 const props = defineProps({
@@ -21,24 +21,23 @@ const props = defineProps({
 })
 const {t} = useI18n()
 
-
 const filteredWeather = computed(() => {
   if (props.dayTime) {
-    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('15:00'));
+    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('15:00'))
   } else {
-    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('03:00'));
+    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('03:00'))
   }
 });
 
 const labels = computed(() => {
   return filteredWeather.value.map(item => {
-    let date = new Date(item.dt * 1000);
-    return date.toLocaleString('en-US', {month: 'short', day: '2-digit'});
+    let date = new Date(item.dt * 1000)
+    return date.toLocaleString('en-US', {month: 'short', day: '2-digit'})
   });
 });
 
 const data = computed(() => {
-  return filteredWeather.value.map(item => item.main.temp);
+  return filteredWeather.value.map(item => item.main.temp)
 });
 
 </script>

@@ -1,7 +1,7 @@
 <script setup>
-import { computed, watch, ref} from 'vue'
-import {getPressureMm, getTime} from "@/utils";
-import Chart from "@/components/Chart.vue";
+import { computed, defineProps, watchEffect, ref} from 'vue'
+import {getPressureMm, getTime} from "@/utils"
+import Chart from "@/components/Chart.vue"
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -19,31 +19,33 @@ const props = defineProps({
   }
 })
 const { t } = useI18n()
+
 const timezone = computed(()=> props.activeCity?.weatherInfo.timezone)
+const currentWeather = computed(()=> props.activeCity?.weatherInfo.current)
 
 const sunriseTime = computed(() => {
-  return getTime(props.activeCity?.weatherInfo.current?.sunrise, timezone.value)
+  return getTime(currentWeather.value.sunrise, timezone.value)
 })
 
 const sunsetTime = computed(() => {
-  return getTime(props.activeCity?.weatherInfo.current?.sunset, timezone.value)
+  return getTime(currentWeather.value?.sunset, timezone.value)
 })
 
 const filteredWeather = computed(() => {
-  let sunriseTime = props.activeCity?.weatherInfo.current?.sunrise * 1000;
-  let sunsetTime = props.activeCity?.weatherInfo.current?.sunset * 1000;
+  let sunriseTime = currentWeather.value?.sunrise * 1000
+  let sunsetTime = currentWeather.value?.sunset * 1000
   if (props.dayTime) {
     return props.activeCity?.weatherInfo.hourly.slice(0,24).filter((item) => {
       const forecastTime = item.dt * 1000;
-      return forecastTime >= sunriseTime && forecastTime <= sunsetTime;
+      return forecastTime >= sunriseTime && forecastTime <= sunsetTime
     });
   } else {
     if (sunriseTime < sunsetTime) {
-      sunriseTime += 24 * 60 * 60 * 1000;
+      sunriseTime += 24 * 60 * 60 * 1000
     }
     return props.activeCity?.weatherInfo.hourly.slice(0,24).filter((item) => {
-      const forecastTime = item.dt * 1000;
-      return forecastTime >= sunsetTime && forecastTime <= sunriseTime;
+      const forecastTime = item.dt * 1000
+      return forecastTime >= sunsetTime && forecastTime <= sunriseTime
     });
   }
 });
@@ -55,7 +57,7 @@ const labels = computed(() => {
 });
 
 const data = computed(() => {
-  return filteredWeather.value.map(item => item.temp);
+  return filteredWeather.value.map(item => item.temp)
 });
 
 </script>
@@ -71,7 +73,7 @@ const data = computed(() => {
             <div class="card-justify">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{activeCity.weatherInfo?.current.wind_speed }}
+                  {{currentWeather.wind_speed }}
                 </div>
                 <div class="info-main-text">
                   {{ t('meters') }}
@@ -79,7 +81,7 @@ const data = computed(() => {
               </div>
               <div class="info-main">
                 <div class="info-main-num">
-                  {{activeCity.weatherInfo?.current.wind_deg }}
+                  {{currentWeather.wind_deg }}
                 </div>
                 <div class="info-main-text">
                   {{ t('deg') }}
@@ -95,7 +97,7 @@ const data = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div  class="info-main-num">
-                {{ activeCity.weatherInfo?.current.wind_gust !== undefined ? Math.round(activeCity.weatherInfo?.current.wind_gust) : 0 }}
+                {{ currentWeather.wind_gust !== undefined ? Math.round(currentWeather.wind_gust) : 0 }}
               </div>
               <div class="info-main-text">
                 {{ t('meters') }}
@@ -120,7 +122,7 @@ const data = computed(() => {
             <div class="card-centered">
               <div class="info-main">
                 <div class="info-main-num">
-                  {{getPressureMm(activeCity.weatherInfo?.current.pressure) }}
+                  {{getPressureMm(currentWeather.pressure) }}
                 </div>
                 <div class="info-main-text"> {{ t('mm') }} </div>
               </div>
@@ -132,7 +134,7 @@ const data = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{Math.round(activeCity.weatherInfo?.current.feels_like) }}
+                {{Math.round(currentWeather.feels_like) }}
               </div>
               <div class="info-main-text">°C </div>
             </div>
@@ -175,11 +177,9 @@ const data = computed(() => {
           <div class="card-small-info">
             <div class="card-small-data">
               <div class="info-main-num">
-                {{activeCity.weatherInfo?.current.clouds }}
+                {{currentWeather.clouds }}
               </div>
-              <div class="info-main-text">
-                %
-              </div>
+              <div class="info-main-text">%</div>
             </div>
             <div class="card-small-hint">
               <div class="card-small-pic card-small-pic--sun"></div>
@@ -335,6 +335,7 @@ const data = computed(() => {
     display: flex
     justify-content: space-between
     align-items: center
+    height: 50px
 
     @media (max-width: 1199px)
       flex-direction: column

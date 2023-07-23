@@ -1,12 +1,12 @@
 <script setup>
-import { defineEmits } from 'vue';
+import { defineEmits } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const emits = defineEmits(['close']);
+const emits = defineEmits(['close'])
 const { t } = useI18n()
 
 const closeModal = () => {
-  emits('close');
+  emits('close')
 };
 
 </script>

@@ -1,8 +1,8 @@
 <script setup>
 import {capitalizedFirstLetter} from '../utils/index'
-import {defineProps, ref, computed, watch, watchEffect,onUpdated } from 'vue';
-import {useStore} from 'vuex';
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import {defineProps, ref, computed, watchEffect,onUpdated } from 'vue'
+import {useStore} from 'vuex'
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue"
 
 const props = defineProps({
   weatherInfo: {
@@ -10,7 +10,7 @@ const props = defineProps({
     required: true,
   },
   index: {
-    type: Object,
+    type: Number,
     required: true,
   },
   component: {
@@ -19,7 +19,7 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
+const store = useStore()
 
 const deleteConfirmation = ref({
   isOpen: false,
@@ -27,30 +27,30 @@ const deleteConfirmation = ref({
   cityName: null
 });
 
-const bookmarksCities = computed(() => store.state.bookmarksCities);
+const bookmarksCities = computed(() => store.state.bookmarksCities)
 
 const isCityInBookmarks = computed(() => {
   const cityName = props.weatherInfo.city ? props.weatherInfo.city : props.weatherInfo.name
-  return bookmarksCities.value.some(city => city.name === cityName );
+  return bookmarksCities.value.some(city => city.name === cityName )
 });
 
 const openDeleteConfirmation = (index, cityName) => {
-  deleteConfirmation.value.isOpen = true;
-  deleteConfirmation.value.city = index;
-  deleteConfirmation.value.cityName = cityName;
+  deleteConfirmation.value.isOpen = true
+  deleteConfirmation.value.city = index
+  deleteConfirmation.value.cityName = cityName
 };
 
 const closeDeleteConfirmation = () => {
-  deleteConfirmation.value.isOpen = false;
-  deleteConfirmation.value.city = null;
-  deleteConfirmation.value.cityName = null;
+  deleteConfirmation.value.isOpen = false
+  deleteConfirmation.value.city = null
+  deleteConfirmation.value.cityName = null
 };
 
 const deleteCity = (index) => {
   if (props.component === 'main') {
-    store.dispatch('deleteCity', index);
+    store.dispatch('deleteCity', index)
   } else if (props.component === 'favorites') {
-    store.dispatch('deleteBookmarkCity', index);
+    store.dispatch('deleteBookmarkCity', index)
   }
   closeDeleteConfirmation();
 };
@@ -59,15 +59,15 @@ const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numer
 
 const encodedWeatherDescription = ref('');
 const updateEncodedWeatherDescription = () => {
-  encodedWeatherDescription.value = encodeURIComponent(props.weatherInfo?.weatherInfo?.current?.weather[0]?.description);
+  encodedWeatherDescription.value = encodeURIComponent(props.weatherInfo?.weatherInfo?.current?.weather[0]?.description)
 };
 
 watchEffect(() => {
-  updateEncodedWeatherDescription();
+  updateEncodedWeatherDescription()
 });
 
 onUpdated(() => {
-  updateEncodedWeatherDescription();
+  updateEncodedWeatherDescription()
 });
 
 </script>
@@ -125,7 +125,6 @@ onUpdated(() => {
   box-shadow: 0 0 10px #0e100f
   position: relative
   height: 100%
-  cursor: pointer
 
 .summary-actions
   display: flex

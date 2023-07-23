@@ -1,40 +1,42 @@
 <script setup>
 import WeatherSummary from '@/components/WeatherSummary.vue'
-import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
-import Highlights from "@/components/Highlights.vue";
-import {capitalizedFirstLetter} from "@/utils";
-import {useStore} from 'vuex';
-import {ref, computed, onMounted} from 'vue';
-import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue";
+import FiveDaysForecast from "@/components/FiveDaysForecast.vue"
+import Highlights from "@/components/Highlights.vue"
+import {capitalizedFirstLetter} from "@/utils"
+import {useStore} from 'vuex'
+import {ref, computed, onMounted} from 'vue'
+import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue"
 import {useI18n} from 'vue-i18n'
 
-const store = useStore();
-const searchQuery = ref('');
-const currentComponent = ref('TodayHighlights')
-const isError = store.state.isError;
-const errorMessage = store.state.errorMessage
-const city = computed(() => store.state.city);
-const activeCity = computed(() => store.state.activeCity);
-const isWarningOpen = ref(false);
-const bookmarksCities = computed(() => store.state.bookmarksCities);
+const store = useStore()
 const {t} = useI18n()
+const isError = computed(() => store.state.isError)
+const bookmarksCities = computed(() => store.state.bookmarksCities)
+const errorMessage = computed(() => store.state.errorMessage)
+const city = computed(() => store.state.city)
+const isWarningOpen = ref(false)
+const activeCity = ref(null)
+const isDayTime = ref(true)
+const searchQuery = ref('')
+const currentComponent = ref('TodayHighlights')
 
-onMounted(async () => {
-
+onMounted(() => {
   if (city.value.length > 0 && activeCity.value === null) {
-    setActiveCity(city.value[0]);
+    setActiveCity(city.value[0])
   }
 });
 
-const isDayTime = ref(true);
+const setActiveCity = (city) => {
+  activeCity.value = city
+};
 
 const toggleDayNight = () => {
-  isDayTime.value = !isDayTime.value;
+  isDayTime.value = !isDayTime.value
 };
 
 const searchResults = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 3) {
-    return [];
+    return []
   }
   const query = searchQuery.value.toLowerCase();
   return store.state.cities.filter(c =>
@@ -44,41 +46,34 @@ const searchResults = computed(() => {
 
 const addCity = async (result) => {
   if (store.state.city.length >= 5) {
-    searchQuery.value = '';
-    alert("You can only add up to 5 cities.");
-    return;
+    searchQuery.value = ''
+    alert("You can only add up to 5 cities.")
+    return
   }
-  await store.dispatch('addCity', result);
-  searchQuery.value = '';
-};
-
-const setActiveCity = (result) => {
-  store.dispatch('setActiveCity', result);
+  await store.dispatch('addCity', result)
+  searchQuery.value = ''
 };
 
 const selectCity = async (res) => {
-  await store.dispatch('selectCity', res);
+  await store.dispatch('selectCity', res)
   const countryName = res.name ? res.name : res.city
   const countryCode = res.countryCode ? res.countryCode : res.country
-  let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode);
-  setActiveCity(selectedCity);
-  searchQuery.value = '';
-
+  let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode)
+  setActiveCity(selectedCity)
+  searchQuery.value = ''
 };
 
 const addToBookmark = (result) => {
-  store.dispatch('setBookmarkCity', result);
-  searchQuery.value = '';
+  store.dispatch('setBookmarkCity', result)
+  searchQuery.value = ''
   if (bookmarksCities.value.length > 5) {
-    isWarningOpen.value = true;
+    isWarningOpen.value = true
   }
 }
 
 const closeWarningModal = () => {
   isWarningOpen.value = false
 }
-
-
 
 </script>
 
@@ -92,21 +87,18 @@ const closeWarningModal = () => {
               v-model="searchQuery"
               type="text"
               :placeholder="t('placeholder')"
-              class="search">
+              class="search"
+              name="search">
           <div v-if="searchResults.length > 0" class="autocomplete-results">
             <div
                 v-for="(result, i) in searchResults"
                 :key="i"
                 class="autocomplete-result">
-              <div
-                  @click="selectCity(result)">
+              <div @click="selectCity(result)">
                 {{ result.name }}, {{ result.country }}
               </div>
               <div class="autocomplete-result actions">
-                <div
-                    @click="addCity(result)"
-                    class="pic pic-add"
-                />
+                <div @click="addCity(result)" class="pic pic-add"/>
                 <div
                     @click="addToBookmark(result)"
                     class="pic pic-plus"
@@ -121,7 +113,9 @@ const closeWarningModal = () => {
         />
         <div
             v-for="(res, i) in city" :key="res.lat"
-            @click="setActiveCity(res)">
+            @click="setActiveCity(res)"
+            :style="{cursor: 'pointer'}"
+        >
           <WeatherSummary
               :weatherInfo="res"
               :index="i"
@@ -142,7 +136,7 @@ const closeWarningModal = () => {
           <p @click="currentComponent = 'Forecast'">{{ t('forecast') }}</p>
         </nav>
         <div @click='toggleDayNight'
-        :class="['pic', {'pic-day' : !isDayTime}, {'pic-night' : isDayTime}]"/>
+             :class="['pic', {'pic-day' : !isDayTime}, {'pic-night' : isDayTime}]"/>
 
         <Highlights
             v-if="currentComponent === 'TodayHighlights'"

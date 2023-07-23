@@ -1,36 +1,36 @@
 <script setup>
-import {useStore} from 'vuex';
-import {ref, onMounted, watch, computed} from 'vue';
+import {useStore} from 'vuex'
+import {ref, onMounted, watch} from 'vue'
 import { useI18n } from 'vue-i18n'
-import FavoriteCities from "@/components/FavoriteCities.vue";
-import MainComponent from "@/components/MainComponent.vue";
-import Loader from "@/components/Loader.vue";
+import FavoriteCities from "@/components/FavoriteCities.vue"
+import MainComponent from "@/components/MainComponent.vue"
+import Loader from "@/components/Loader.vue"
 
 const { t } = useI18n()
-const { locale } = useI18n();
-const language = ref('en');
-const store = useStore();
+const { locale } = useI18n()
+const language = ref('en')
+const store = useStore()
 const currentComponent = ref('Main')
-let isDataLoaded = ref(false);
+let isDataLoaded = ref(false)
 
 
 onMounted(async () => {
   await store.dispatch('getUserLocation')
-  await store.dispatch('getWeather');
-  await store.dispatch('fetchCities');
-  isDataLoaded.value = true;
+  await store.dispatch('getWeather')
+  await store.dispatch('fetchCities')
+  isDataLoaded.value = true
 });
 
 watch(
     () => locale.value,
     async () => {
-      await store.dispatch('getWeather');
+      await store.dispatch('getWeather')
     }
 );
 const changeLanguage = (lang) => {
   localStorage.setItem('lang', lang )
-  locale.value = lang;
-  language.value = lang;
+  locale.value = lang
+  language.value = lang
 }
 
 

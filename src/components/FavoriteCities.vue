@@ -1,36 +1,35 @@
 <script setup>
 
-import WeatherSummary from "@/components/WeatherSummary.vue";
-import Highlights from "@/components/Highlights.vue";
-import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
-import {useStore} from 'vuex';
-import {ref, computed, onMounted, watch} from 'vue';
+import WeatherSummary from "@/components/WeatherSummary.vue"
+import Highlights from "@/components/Highlights.vue"
+import FiveDaysForecast from "@/components/FiveDaysForecast.vue"
+import Loader from "@/components/Loader.vue"
+import {useStore} from 'vuex'
+import {ref, computed, onMounted, watch} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const {t} = useI18n()
-const store = useStore();
-const { locale } = useI18n();
-const bookmarksCities = computed(() => store.state.bookmarksCities);
+const store = useStore()
+const { locale } = useI18n()
+const bookmarksCities = computed(() => store.state.bookmarksCities)
 const isDataLoaded = ref(false)
+const isDayTime = ref(true)
+const currentComponents = ref([])
 
-const isDayTime = ref(true);
-const currentComponents = ref([]);
-
-onMounted(() => {
-  currentComponents.value = bookmarksCities.value.map(() => 'TodayHighlights');
-});
 const toggleDayNight = () => {
-  isDayTime.value = !isDayTime.value;
+  isDayTime.value = !isDayTime.value
 };
 
 onMounted(async() => {
   await store.dispatch('getWeatherForBookmarks')
+  currentComponents.value = bookmarksCities.value.map(() => 'TodayHighlights')
   isDataLoaded.value = true
 })
+
 watch(
     () => locale.value,
     async () => {
-      await store.dispatch('getWeatherForBookmarks');
+      await store.dispatch('getWeatherForBookmarks')
     }
 );
 </script>
@@ -87,7 +86,6 @@ watch(
   align-items: stretch
   padding: 20px
   box-shadow: 0 10px 6px #0e100f
-
 
   @media (max-width: 767px)
     display: flex

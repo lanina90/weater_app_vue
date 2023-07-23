@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -13,14 +13,14 @@ const props = defineProps({
   }
 });
 
-const emits = defineEmits(['confirm', 'cancel']);
+const emits = defineEmits(['confirm', 'cancel'])
 const { t } = useI18n()
 const deleteCity = () => {
-  emits('confirm', props.city);
+  emits('confirm', props.city)
 };
 
 const cancelDelete = () => {
-  emits('cancel');
+  emits('cancel')
 };
 </script>
 

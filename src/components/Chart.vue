@@ -1,8 +1,8 @@
 <script setup>
-import { ref, watchEffect, onUnmounted } from 'vue';
-import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
+import { ref, watchEffect, onUnmounted } from 'vue'
+import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js'
 
-Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale);
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale)
 
 const props = defineProps({
   data: {
@@ -18,22 +18,22 @@ const props = defineProps({
     required: true
   }
 })
-let myChart = null;
-const canvas = ref(null);
+let myChart = null
+const canvas = ref(null)
 
 watchEffect(() => {
-  const ctx = canvas.value?.getContext('2d');
+  const ctx = canvas.value?.getContext('2d')
 
   if (!props.isShow) {
-    destroyChart();
+    destroyChart()
     return;
   }
 
   if (ctx) {
     if (myChart) {
-      myChart.data.labels = props.labels;
-      myChart.data.datasets[0].data = props.data;
-      myChart.update();
+      myChart.data.labels = props.labels
+      myChart.data.datasets[0].data = props.data
+      myChart.update()
     } else {
       myChart = new Chart(ctx, {
         type: 'line',
@@ -57,13 +57,13 @@ watchEffect(() => {
 
 function destroyChart() {
   if (myChart) {
-    myChart.destroy();
-    myChart = null;
+    myChart.destroy()
+    myChart = null
   }
 }
 
 onUnmounted(() => {
-  destroyChart();
+  destroyChart()
 });
 
 </script>
