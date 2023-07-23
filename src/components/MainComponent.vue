@@ -4,9 +4,9 @@ import FiveDaysForecast from "@/components/FiveDaysForecast.vue";
 import Highlights from "@/components/Highlights.vue";
 import {capitalizedFirstLetter} from "@/utils";
 import {useStore} from 'vuex';
-import {ref, computed, onMounted, watch} from 'vue';
+import {ref, computed, onMounted} from 'vue';
 import WarningBookmarksModal from "@/components/WarningBookmarksModal.vue";
-import { useI18n } from 'vue-i18n'
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
 const searchQuery = ref('');
@@ -17,7 +17,7 @@ const city = computed(() => store.state.city);
 const activeCity = computed(() => store.state.activeCity);
 const isWarningOpen = ref(false);
 const bookmarksCities = computed(() => store.state.bookmarksCities);
-const { t } = useI18n()
+const {t} = useI18n()
 
 onMounted(async () => {
 
@@ -26,6 +26,11 @@ onMounted(async () => {
   }
 });
 
+const isDayTime = ref(true);
+
+const toggleDayNight = () => {
+  isDayTime.value = !isDayTime.value;
+};
 
 const searchResults = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 3) {
@@ -58,6 +63,7 @@ const selectCity = async (res) => {
   let selectedCity = store.state.city.find(c => c.name === countryName && c.country === countryCode);
   setActiveCity(selectedCity);
   searchQuery.value = '';
+
 };
 
 const addToBookmark = (result) => {
@@ -72,7 +78,10 @@ const closeWarningModal = () => {
   isWarningOpen.value = false
 }
 
+
+
 </script>
+
 
 <template>
   <div class="sections">
@@ -96,11 +105,11 @@ const closeWarningModal = () => {
               <div class="autocomplete-result actions">
                 <div
                     @click="addCity(result)"
-                    class="pic-add"
+                    class="pic pic-add"
                 />
                 <div
                     @click="addToBookmark(result)"
-                    class="pic-plus"
+                    class="pic pic-plus"
                 />
               </div>
             </div>
@@ -110,11 +119,11 @@ const closeWarningModal = () => {
             v-if="isWarningOpen"
             @close="closeWarningModal"
         />
-        <div v-for="(res, i) in city" :key="res.lat">
+        <div
+            v-for="(res, i) in city" :key="res.lat"
+            @click="setActiveCity(res)">
           <WeatherSummary
-              :style="{ cursor: 'pointer' }"
               :weatherInfo="res"
-              @click="setActiveCity(res)"
               :index="i"
               :component="'main'"
           />
@@ -129,17 +138,22 @@ const closeWarningModal = () => {
     <section v-if="!isError" class="section section-right">
       <div class="section highlights">
         <nav class="header">
-          <p @click="currentComponent = 'TodayHighlights'">{{t('today')}}</p>
-          <p @click="currentComponent = 'Forecast'">{{t('forecast')}}</p>
+          <p @click="currentComponent = 'TodayHighlights'">{{ t('today') }}</p>
+          <p @click="currentComponent = 'Forecast'">{{ t('forecast') }}</p>
         </nav>
+        <div @click='toggleDayNight'
+        :class="['pic', {'pic-day' : !isDayTime}, {'pic-night' : isDayTime}]"/>
+
         <Highlights
             v-if="currentComponent === 'TodayHighlights'"
             :activeCity="activeCity"
+            :dayTime="isDayTime"
             :isChartVisible="true"
         />
         <FiveDaysForecast
             v-else-if="currentComponent === 'Forecast'"
             :activeCity="activeCity"
+            :dayTime="isDayTime"
             :isChartVisible="true"/>
       </div>
     </section>
@@ -181,6 +195,11 @@ const closeWarningModal = () => {
 .header
   display: flex
   height: 80px
+
+  @media (max-width: 767px)
+    height: 90px
+    margin-top: 30px
+
 
   & > p
     border-bottom: 3px solid black
@@ -285,23 +304,38 @@ const closeWarningModal = () => {
   & actions
     display: flex
 
+.pic
+  cursor: pointer
+
 .pic-add
   background: url('@/assets/img/add-icon.svg') no-repeat 50% 50%
   width: 20px
   height: 20px
-  cursor: pointer
+
 
 .pic-plus
   background: url('@/assets/img/bookmark-add.svg') no-repeat 50% 50%
   width: 40px
   height: 40px
-  cursor: pointer
+
 
 .pic-minus
   background: url('@/assets/img/bookmark-remove.svg') no-repeat 50% 50%
   width: 40px
   height: 40px
-  cursor: pointer
+
+.pic-day, .pic-night
+  position: absolute
+  top: 10px
+  right: 15px
+  width: 40px
+  height: 40px
+
+.pic-day
+  background: url('@/assets/img/day.svg') no-repeat 50% 50%
+
+.pic-night
+  background: url('@/assets/img/night.svg') no-repeat 50% 50%
 
 
 </style>

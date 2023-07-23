@@ -56,8 +56,8 @@ const deleteCity = (index) => {
 };
 
 const today = new Date().toLocaleString('en-En', {weekday: 'short', year: 'numeric', month: 'long', day: 'numeric'})
-const encodedWeatherDescription = ref('');
 
+const encodedWeatherDescription = ref('');
 const updateEncodedWeatherDescription = () => {
   encodedWeatherDescription.value = encodeURIComponent(props.weatherInfo?.weatherInfo?.current?.weather[0]?.description);
 };
@@ -125,6 +125,7 @@ onUpdated(() => {
   box-shadow: 0 0 10px #0e100f
   position: relative
   height: 100%
+  cursor: pointer
 
 .summary-actions
   display: flex

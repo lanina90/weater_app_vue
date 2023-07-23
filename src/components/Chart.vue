@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, nextTick  } from 'vue';
+import { ref, watchEffect, onUnmounted } from 'vue';
 import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale } from 'chart.js';
 
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale);
@@ -18,43 +18,42 @@ const props = defineProps({
     required: true
   }
 })
-
 let myChart = null;
 const canvas = ref(null);
 
+watchEffect(() => {
+  const ctx = canvas.value?.getContext('2d');
 
-const data = {
-  labels: props.labels,
-  datasets: [
-    {
-      label: 'Temperature',
-      data: props.data,
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.1
-    }
-  ]
-};
-
-watch(props.isShow, (newValue) => {
-  if (newValue) {
-    createChart();
-  } else {
+  if (!props.isShow) {
     destroyChart();
+    return;
+  }
+
+  if (ctx) {
+    if (myChart) {
+      myChart.data.labels = props.labels;
+      myChart.data.datasets[0].data = props.data;
+      myChart.update();
+    } else {
+      myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: props.labels,
+          datasets: [
+            {
+              label: 'Temperature',
+              data: props.data,
+              fill: false,
+              borderColor: 'rgb(75, 192, 192)',
+              tension: 0.1
+            }
+          ]
+        },
+        options: {}
+      });
+    }
   }
 });
-
-async function createChart() {
-  await nextTick();
-  const ctx = canvas.value?.getContext('2d');
-  if (ctx && !myChart) {
-    myChart = new Chart(ctx, {
-      type: 'line',
-      data: data,
-      options: {}
-    });
-  }
-}
 
 function destroyChart() {
   if (myChart) {
@@ -62,10 +61,6 @@ function destroyChart() {
     myChart = null;
   }
 }
-
-onMounted(() => {
-  createChart();
-});
 
 onUnmounted(() => {
   destroyChart();

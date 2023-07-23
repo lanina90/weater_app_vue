@@ -1,6 +1,6 @@
 <script setup>
 import {useStore} from 'vuex';
-import {ref, onMounted, watch} from 'vue';
+import {ref, onMounted, watch, computed} from 'vue';
 import { useI18n } from 'vue-i18n'
 import FavoriteCities from "@/components/FavoriteCities.vue";
 import MainComponent from "@/components/MainComponent.vue";
@@ -12,6 +12,7 @@ const language = ref('en');
 const store = useStore();
 const currentComponent = ref('Main')
 let isDataLoaded = ref(false);
+
 
 onMounted(async () => {
   await store.dispatch('getUserLocation')
@@ -31,6 +32,7 @@ const changeLanguage = (lang) => {
   locale.value = lang;
   language.value = lang;
 }
+
 
 </script>
 

@@ -12,41 +12,57 @@ const props = defineProps({
   isChartVisible: {
     type: Boolean,
     required: true
+  },
+  dayTime: {
+    type: Boolean,
+    required: true
   }
 })
-
 const { t } = useI18n()
-const labels = ref([]);
-const data = ref([]);
+const timezone = computed(()=> props.activeCity?.weatherInfo.timezone)
 
 const sunriseTime = computed(() => {
-  return getTime(props.activeCity?.weatherInfo.current?.sunrise + props.activeCity?.weatherInfo.timezone_offset)
+  return getTime(props.activeCity?.weatherInfo.current?.sunrise, timezone.value)
 })
 
 const sunsetTime = computed(() => {
-  return getTime(props.activeCity?.weatherInfo.current?.sunset + props.activeCity?.weatherInfo.timezone_offset)
+  return getTime(props.activeCity?.weatherInfo.current?.sunset, timezone.value)
 })
 
-watch(
-    () => props.activeCity,
-    (newVal) => {
-      if (newVal && newVal.weatherInfo) {
-        labels.value = newVal?.weatherInfo.hourly.map(item => {
-          let date = new Date(item.dt * 1000);
-          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        });
-        data.value = newVal?.weatherInfo.hourly.map(item => item.temp)
-      }
-    },
-    { immediate: true }
-);
+const filteredWeather = computed(() => {
+  let sunriseTime = props.activeCity?.weatherInfo.current?.sunrise * 1000;
+  let sunsetTime = props.activeCity?.weatherInfo.current?.sunset * 1000;
+  if (props.dayTime) {
+    return props.activeCity?.weatherInfo.hourly.slice(0,24).filter((item) => {
+      const forecastTime = item.dt * 1000;
+      return forecastTime >= sunriseTime && forecastTime <= sunsetTime;
+    });
+  } else {
+    if (sunriseTime < sunsetTime) {
+      sunriseTime += 24 * 60 * 60 * 1000;
+    }
+    return props.activeCity?.weatherInfo.hourly.slice(0,24).filter((item) => {
+      const forecastTime = item.dt * 1000;
+      return forecastTime >= sunsetTime && forecastTime <= sunriseTime;
+    });
+  }
+});
+
+const labels = computed(() => {
+  return filteredWeather.value.map(item => {
+    return getTime(item.dt, timezone.value)
+  });
+});
+
+const data = computed(() => {
+  return filteredWeather.value.map(item => item.temp);
+});
 
 </script>
 
 <template>
   <div v-if="activeCity">
-    <div
-        class="highlights-wrapper">
+    <div class="highlights-wrapper">
       <div  class="highlight">
         <div class="card">
           <div class="card-title">{{ t('wind') }}</div>
@@ -310,6 +326,7 @@ watch(
   background: url('/src/assets/img/gradient-2.jpg') no-repeat 50% 50%
   background-size: cover
   border-radius: 8px
+  height: 115px
 
   &-title
     font-size: 13px

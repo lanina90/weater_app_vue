@@ -7,11 +7,21 @@ import {useStore} from 'vuex';
 import {ref, computed, onMounted, watch} from 'vue';
 import { useI18n } from 'vue-i18n'
 
+const {t} = useI18n()
 const store = useStore();
 const { locale } = useI18n();
-const currentComponent = ref('TodayHighlights')
 const bookmarksCities = computed(() => store.state.bookmarksCities);
 const isDataLoaded = ref(false)
+
+const isDayTime = ref(true);
+const currentComponents = ref([]);
+
+onMounted(() => {
+  currentComponents.value = bookmarksCities.value.map(() => 'TodayHighlights');
+});
+const toggleDayNight = () => {
+  isDayTime.value = !isDayTime.value;
+};
 
 onMounted(async() => {
   await store.dispatch('getWeatherForBookmarks')
@@ -19,12 +29,10 @@ onMounted(async() => {
 })
 watch(
     () => locale.value,
-
     async () => {
       await store.dispatch('getWeatherForBookmarks');
     }
 );
-
 </script>
 
 <template>
@@ -32,7 +40,7 @@ watch(
   <Loader v-if="!isDataLoaded"/>
   <div v-if="bookmarksCities.length === 0">
     <div class="wrapper">
-     <div class="wrapper-empty"> You have not added cities to this list</div>
+     <div class="wrapper-empty">You have not added cities to this list</div>
     </div>
   </div>
 
@@ -42,19 +50,24 @@ watch(
         <WeatherSummary :index="i" :weatherInfo="res" :component="'favorites'"/>
       </div>
       <div class="section-info">
+        <div @click='toggleDayNight'
+             :class="['pic', {'pic-day' : !isDayTime}, {'pic-night' : isDayTime}]"/>
+
         <nav class="header">
-          <p @click="currentComponent = 'TodayHighlights'">Today</p>
-          <p @click="currentComponent = 'Forecast'">5 days forecast</p>
+          <p @click="currentComponents[i] = 'TodayHighlights'">{{ t('today') }}</p>
+          <p @click="currentComponents[i] = 'Forecast'">{{ t('forecast') }}</p>
         </nav>
         <Highlights
-            v-if="currentComponent === 'TodayHighlights'"
+            v-if="currentComponents[i] === 'TodayHighlights'"
             :activeCity="res"
             :isChartVisible="false"
+            :dayTime="isDayTime"
         />
         <FiveDaysForecast
-            v-else-if="currentComponent === 'Forecast'"
+            v-else-if="currentComponents[i] === 'Forecast'"
             :activeCity="res"
             :isChartVisible="false"
+            :dayTime="isDayTime"
         />
       </div>
     </div>
@@ -106,6 +119,12 @@ watch(
   display: flex
   height: 70px
 
+  @media (max-width: 767px)
+    height: 90px
+    margin-top: 30px
+
+
+
   & > p
     border-bottom: 3px solid black
     cursor: pointer
@@ -120,8 +139,24 @@ watch(
 .section-info
   margin-left: 20px
   width: 100%
+  position: relative
 
   @media (max-width: 767px)
-    margin-left: 0px
+    margin-left: 0
+.pic
+  cursor: pointer
+
+.pic-day, .pic-night
+  position: absolute
+  top: 10px
+  right: 15px
+  width: 40px
+  height: 40px
+
+.pic-day
+  background: url('@/assets/img/day.svg') no-repeat 50% 50%
+
+.pic-night
+  background: url('@/assets/img/night.svg') no-repeat 50% 50%
 
 </style>

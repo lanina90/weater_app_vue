@@ -1,9 +1,9 @@
 <script setup>
 
 import Chart from "@/components/Chart.vue";
-import {formatDate, getTime} from "@/utils";
+import {formatDate} from "@/utils";
 import {computed} from 'vue'
-import { useI18n } from 'vue-i18n'
+import {useI18n} from 'vue-i18n'
 
 const props = defineProps({
   activeCity: {
@@ -13,40 +13,48 @@ const props = defineProps({
   isChartVisible: {
     type: Boolean,
     required: true
+  },
+  dayTime: {
+    type: Boolean,
+    required: true
   }
 })
-const { t } = useI18n()
-const daily = computed(() => {
-  return props.activeCity?.weatherInfo?.daily ?? [];
+const {t} = useI18n()
+
+
+const filteredWeather = computed(() => {
+  if (props.dayTime) {
+    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('15:00'));
+  } else {
+    return props.activeCity?.forecast.list.filter(item => item.dt_txt.includes('03:00'));
+  }
 });
 
-const timezoneOffset =
-    computed(() => {
-      return props.activeCity?.weatherInfo?.timezone_offset
-    });
+const labels = computed(() => {
+  return filteredWeather.value.map(item => {
+    let date = new Date(item.dt * 1000);
+    return date.toLocaleString('en-US', {month: 'short', day: '2-digit'});
+  });
+});
 
-const labels = computed(() =>
-    daily.value.slice(1, 6).map(item => {
-      let date = new Date(item.dt * 1000);
-      return date.toLocaleString('en-US', {  month: 'short', day: '2-digit' });
-    })
-);
-const data = computed(() =>
-    daily.value.map(item => (item.temp.max + item.temp.min) / 2)
-);
+const data = computed(() => {
+  return filteredWeather.value.map(item => item.main.temp);
+});
 
 </script>
 
 <template>
   <section class="highlights-container">
+
     <div
-        v-for="(item, index) in daily.slice(1, 6)"
+        v-for="(item, index) in filteredWeather"
         :key="index"
         class="highlight">
+
       <div class="card">
         <div class="card-date">{{ formatDate(item.dt) }}</div>
         <div class="card-temp">
-          <div class="title">{{ Math.round(item.temp.day) }} / {{ Math.round(item.temp.night) }} °C</div>
+          <div class="title">{{ Math.round(item.main.temp) }} °C</div>
           <div
               :style="`background-image: url('weather-main/${item.weather[0].description}.png')`"
               class="pic-card"
@@ -55,35 +63,22 @@ const data = computed(() =>
         <div class="card-info">
           <div>
             <div class="card-pic humidity"></div>
-            <div>{{ item.humidity }}%</div>
+            <div>{{ item.main.humidity }}%</div>
           </div>
           <div>
             <div class="card-pic pressure"></div>
-            <div> {{ item.pressure }} hPa</div>
+            <div> {{ item.main.pressure }} hPa</div>
           </div>
           <div>
             <div class="card-pic wind"></div>
-            <div> {{ item.wind_speed }} {{t('meters')}}</div>
+            <div> {{ Math.round(item.wind.speed) }} {{ t('meters') }}</div>
           </div>
           <div>
-            <div class="card-pic uv"></div>
-            <div> {{ item.uvi }} </div>
-          </div>
-        </div>
-        <div class="states">
-          <div class="state">
-            <div class="state-pic"></div>
-            <div class="state-title">{{t('sunrise')}}</div>
-            <div class="state-time">{{ getTime(item.sunrise + timezoneOffset) }}</div>
-          </div>
-          <div class="state">
-            <div class="state-pic state-pic--flipped"></div>
-            <div class="state-title">{{t('sunset')}}</div>
-            <div class="state-time">{{ getTime(item.sunset + timezoneOffset) }}</div>
+            <div class="card-pic feels"></div>
+            <div> {{ Math.round(item.main.feels_like) }} °C</div>
           </div>
         </div>
       </div>
-
     </div>
   </section>
   <Chart :labels="labels" :data="data" :isShow="isChartVisible"/>
@@ -112,7 +107,7 @@ const data = computed(() =>
   width: 80%
 
 .card
-  height: 280px
+  height: 220px
   width: 100%
   padding: 16px
   background: url('/src/assets/img/gradient-2.jpg') no-repeat 50% 50%
@@ -162,6 +157,9 @@ const data = computed(() =>
     width: 20px
     height: 20px
 
+.feels
+  background: url('/src/assets/img/feels-like.svg') no-repeat 50% 50%
+
 .humidity
   background: url('/src/assets/img/humidity.svg') no-repeat 50% 50%
 
@@ -170,9 +168,6 @@ const data = computed(() =>
 
 .wind
   background: url('/src/assets/img/wind.svg') no-repeat 50% 50%
-
-.uv
-  background: url('/src/assets/img/uv-index.svg') no-repeat 50% 50%
 
 .pic-card
   width: 32px
@@ -187,35 +182,6 @@ const data = computed(() =>
 
   &--margin
     margin-top: 40px
-
-.state
-  width: 40%
-
-  &:last-child
-    text-align: right
-
-  &-pic
-    width: 20px
-    height: 20px
-    margin-bottom: 6px
-    background: url('/src/assets/img/sun.svg') no-repeat 50% 50%
-    background-size: cover
-
-    &--flipped
-      margin-left: auto
-      -webkit-transform: scaleX(-1)
-      transform: scaleX(-1)
-
-  &-title
-    font-size: 12px
-    color: $gold
-
-  &-time
-    font-size: 13px
-    font-weight: 700
-
-    @media (max-width: 1199px)
-      font-size: 11px
 
 
 </style>
