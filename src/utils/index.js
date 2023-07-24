@@ -29,7 +29,9 @@ export const formatDate = (timestamp) => {
 
 export const fetchWeatherData = async (city) => {
   const lang = localStorage.getItem('lang');
-  const queryCity = `lat=${city.lat}&lon=${city.lon}&lang=${lang}`;
+  const cityLat = city.lat ? city.lat : city.latitude
+  const cityLon = city.lon ? city.lon : city.longitude
+  const queryCity = `lat=${cityLat}&lon=${cityLon}&lang=${lang}`;
 
   const weatherData = await fetch(`${API_URL_ONECALL}?${queryCity}&exclude=daily,minutely&units=metric&appid=${API_KEY}`)
     .then(response => {
@@ -39,7 +41,7 @@ export const fetchWeatherData = async (city) => {
       return response.json();
     });
 
-  const cityName = city.name ? city.name : city.city
+  const cityName = city.name ? city.name : city.cityName
   const cityCountry = city.countryCode ? city.countryCode : city.country
   const queryCity2 = `${cityName},${cityCountry}&lang=${lang}`;
 

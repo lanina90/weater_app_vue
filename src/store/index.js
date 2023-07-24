@@ -92,7 +92,7 @@ export default createStore({
     },
     async getUserLocation({ commit }) {
       try {
-        const response = await fetch('https://ip-api.com/json/');
+        const response = await fetch('https://freeipapi.com/api/json/');
         const data = await response.json()
         commit('setUserCity', data)
       } catch (error) {

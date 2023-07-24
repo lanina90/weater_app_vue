@@ -98,7 +98,7 @@ onUpdated(() => {
       </div>
     </div>
     <div class="city text-block">
-      {{ weatherInfo?.name ? weatherInfo?.name : weatherInfo?.city }},
+      {{ weatherInfo?.name ? weatherInfo?.name : weatherInfo?.cityName }},
       {{ weatherInfo?.countryCode ? weatherInfo?.countryCode : weatherInfo?.country }}
     </div>
     <div class="date text-block">
