@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps, watchEffect, ref} from 'vue'
+import { computed} from 'vue'
 import {getPressureMm, getTime} from "@/utils"
 import Chart from "@/components/Chart.vue"
 import { useI18n } from 'vue-i18n'

@@ -43,7 +43,7 @@ watch(
     </div>
   </div>
 
-  <div v-else >
+  <div v-if="Array.isArray(bookmarksCities)" >
     <div v-for="(res, i) in bookmarksCities"  class="wrapper">
       <div class="wrapper-summary">
         <WeatherSummary :index="i" :weatherInfo="res" :component="'favorites'"/>

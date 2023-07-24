@@ -102,9 +102,11 @@ export default createStore({
     async getWeather({ state, commit }) {
       try {
 
-        const cities = state.city.length > 0 ? state.city : [state.userCity]
 
-        const weatherRequests = cities.map(fetchWeatherData)
+
+        const cities = state.city && state.city.length > 0 ? state.city : [state.userCity]
+        console.log('cities', cities)
+        const weatherRequests = cities?.map(fetchWeatherData)
 
         const combinedData = await Promise.allSettled(weatherRequests)
 
@@ -115,15 +117,15 @@ export default createStore({
         });
       } catch (e) {
         commit('setIsError', true);
-        commit('setErrorMessage', 'Something went wrong...')
+        commit('setErrorMessage', `${e.message}`)
       }
     },
     async getWeatherForBookmarks({ commit }) {
 
       try {
-        const savedCities = JSON.parse(localStorage.getItem('bookmarksCities'))
+        const savedCities = JSON.parse(localStorage.getItem('bookmarksCities')) || []
 
-        const weatherRequests = savedCities.map(fetchWeatherData)
+        const weatherRequests = savedCities && savedCities?.map(fetchWeatherData)
         const combinedData = await Promise.allSettled(weatherRequests)
 
         combinedData.forEach(result => {
@@ -133,7 +135,9 @@ export default createStore({
         });
       } catch (e) {
         commit('setIsError', true)
-        commit('setErrorMessage', 'Something went wrong...')
+        commit('setErrorMessage', `${e.message}`)
+        console.log(e.message)
+
       }
     },
     async fetchCities({ commit }) {

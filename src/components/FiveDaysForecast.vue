@@ -2,7 +2,7 @@
 
 import Chart from "@/components/Chart.vue"
 import {formatDate} from "@/utils"
-import {computed, defineProps} from 'vue'
+import {computed} from 'vue'
 import {useI18n} from 'vue-i18n'
 
 const props = defineProps({
@@ -37,13 +37,13 @@ const labels = computed(() => {
 });
 
 const data = computed(() => {
-  return filteredWeather.value.map(item => item.main.temp)
+  return filteredWeather.value?.map(item => item.main.temp)
 });
 
 </script>
 
 <template>
-  <section class="highlights-container">
+  <section v-if="filteredWeather" class="highlights-container">
 
     <div
         v-for="(item, index) in filteredWeather"

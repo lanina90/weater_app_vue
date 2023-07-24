@@ -139,13 +139,13 @@ const closeWarningModal = () => {
              :class="['pic', {'pic-day' : !isDayTime}, {'pic-night' : isDayTime}]"/>
 
         <Highlights
-            v-if="currentComponent === 'TodayHighlights'"
+            v-if="currentComponent === 'TodayHighlights' && activeCity"
             :activeCity="activeCity"
             :dayTime="isDayTime"
             :isChartVisible="true"
         />
         <FiveDaysForecast
-            v-else-if="currentComponent === 'Forecast'"
+            v-else-if="currentComponent === 'Forecast' && activeCity"
             :activeCity="activeCity"
             :dayTime="isDayTime"
             :isChartVisible="true"/>
