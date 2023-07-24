@@ -92,7 +92,7 @@ export default createStore({
     },
     async getUserLocation({ commit }) {
       try {
-        const response = await fetch('http://ip-api.com/json/');
+        const response = await fetch('https://ip-api.com/json/');
         const data = await response.json()
         commit('setUserCity', data)
       } catch (error) {
@@ -101,11 +101,7 @@ export default createStore({
     },
     async getWeather({ state, commit }) {
       try {
-
-
-
         const cities = state.city && state.city.length > 0 ? state.city : [state.userCity]
-        console.log('cities', cities)
         const weatherRequests = cities?.map(fetchWeatherData)
 
         const combinedData = await Promise.allSettled(weatherRequests)
